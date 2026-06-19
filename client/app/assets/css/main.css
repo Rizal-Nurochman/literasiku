@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+  --color-sea-50: #effaff;
+  --color-sea-100: #def5ff;
+  --color-sea-200: #b6ecff;
+  --color-sea-300: #75dcff;
+  --color-sea-400: #2cc8ff;
+  --color-sea-500: #00a6d6;
+  --color-sea-600: #0086b3;
+  --color-sea-700: #006b91;
+  --color-sea-800: #075a78;
+  --color-sea-900: #0b4a63;
+  --color-sea-950: #073047;
+
+  --color-cyan-50: #ecfeff;
+  --color-cyan-100: #cffafe;
+  --color-cyan-200: #a5f3fc;
+  --color-cyan-300: #67e8f9;
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+  --color-cyan-600: #0891b2;
+  --color-cyan-700: #0e7490;
+  --color-cyan-800: #155e75;
+  --color-cyan-900: #164e63;
+  --color-cyan-950: #083344;
+}
+
+:root {
+  --ui-primary: var(--color-sea-600);
+  --ui-secondary: var(--color-cyan-500);
+}
+
+.dark {
+  --ui-primary: var(--color-sea-400);
+  --ui-secondary: var(--color-cyan-400);
+}
