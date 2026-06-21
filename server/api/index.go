@@ -1,9 +1,9 @@
-package main
+package api
 
 import (
-	"log"
+	"net/http"
 
-	"github.com/literasiKu/database"
+	"github.com/gin-gonic/gin"
 	"github.com/literasiKu/database/config"
 	"github.com/literasiKu/modules/auth/handler"
 	authrepo "github.com/literasiKu/modules/auth/repository"
@@ -11,20 +11,14 @@ import (
 	"github.com/literasiKu/router"
 )
 
-func main() {
+var engine *gin.Engine
+
+func init() {
+	gin.SetMode(gin.ReleaseMode)
+
 	cfg := config.LoadConfig()
-
 	if err := config.Connect(cfg); err != nil {
-		log.Fatalf("failed to connect database: %v", err)
-	}
-	defer func() {
-		if err := config.Close(); err != nil {
-			log.Printf("failed to close database: %v", err)
-		}
-	}()
-
-	if err := database.AutoMigrate(); err != nil {
-		log.Fatalf("failed to migrate database: %v", err)
+		panic("failed to connect database: " + err.Error())
 	}
 
 	jwtService := authservice.NewJWTService()
@@ -32,12 +26,12 @@ func main() {
 	authSvc := authservice.NewAuthService(authRepo, jwtService)
 	authHandler := handler.NewAuthHandler(authSvc)
 
-	app := router.New(router.Deps{
+	engine = router.New(router.Deps{
 		AuthHandler: authHandler,
 		JWTService:  jwtService,
 	})
+}
 
-	if err := app.Run(":" + cfg.Port); err != nil {
-		log.Fatalf("failed to start server: %v", err)
-	}
+func Handler(w http.ResponseWriter, r *http.Request) {
+	engine.ServeHTTP(w, r)
 }
