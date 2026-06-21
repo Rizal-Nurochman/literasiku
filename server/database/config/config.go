@@ -15,7 +15,7 @@ type Config struct {
 }
 
 type DBConfig struct {
-	RawDSN   string 
+	RawDSN   string
 	Host     string
 	Port     string
 	User     string
