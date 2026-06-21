@@ -45,9 +45,9 @@ func Connect(cfg Config) error {
 		return fmt.Errorf("ping database: %w", err)
 	}
 
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetMaxIdleConns(2)
+	sqlDB.SetMaxOpenConns(5)
+	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
 	DB = gormDB
 
