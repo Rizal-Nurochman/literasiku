@@ -1,64 +1,175 @@
-# Nuxt Starter Template
+# Literasiku - Digital Library with AI Agent
 
-[![Nuxt UI](https://img.shields.io/badge/Made%20with-Nuxt%20UI-00DC82?logo=nuxt&labelColor=020420)](https://ui.nuxt.com)
+Literasiku adalah web digital library berbasis Nuxt dengan DeepSeek-powered AI Agent, RAG ke Pinecone, PDF indexing, memory, semantic routing, native SSE, dan NotebookLM-style hover references.
 
-Use this template to get started with [Nuxt UI](https://ui.nuxt.com) quickly.
+## Stack
 
-- [Live demo](https://starter-template.nuxt.dev/)
-- [Documentation](https://ui.nuxt.com/docs/getting-started/installation/nuxt)
-
-<a href="https://starter-template.nuxt.dev/" target="_blank">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png">
-    <img alt="Nuxt Starter Template" src="https://ui.nuxt.com/assets/templates/nuxt/starter-light.png" width="830" height="466">
-  </picture>
-</a>
-
-> The starter template for Vue is on https://github.com/nuxt-ui-templates/starter-vue.
-
-## Quick Start
-
-```bash [Terminal]
-npm create nuxt@latest -- -t ui
-```
-
-## Deploy your own
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-name=starter&repository-url=https%3A%2F%2Fgithub.com%2Fnuxt-ui-templates%2Fstarter&demo-image=https%3A%2F%2Fui.nuxt.com%2Fassets%2Ftemplates%2Fnuxt%2Fstarter-dark.png&demo-url=https%3A%2F%2Fstarter-template.nuxt.dev%2F&demo-title=Nuxt%20Starter%20Template&demo-description=A%20minimal%20template%20to%20get%20started%20with%20Nuxt%20UI.)
+- Nuxt 4
+- Nuxt UI
+- Vercel AI SDK
+- `@ai-sdk/deepseek`
+- Pinecone Vector DB
+- Native SSE
+- PDF RAG
+- NotebookLM-style citation UI
+- Yarn
 
 ## Setup
 
-Make sure to install the dependencies:
-
 ```bash
-pnpm install
+yarn install
+cp .env.example .env
+yarn dev
 ```
 
-## Development Server
+Isi `.env` dengan DeepSeek, embedding provider, dan Pinecone key. API key hanya dipakai server-side.
 
-Start the development server on `http://localhost:3000`:
+## Environment
 
-```bash
-pnpm dev
+```env
+NUXT_DEEPSEEK_API_KEY=
+NUXT_DEEPSEEK_FAST_MODEL=deepseek-v4-flash
+NUXT_DEEPSEEK_THINKING_MODEL=deepseek-v4-pro
+NUXT_AI_DEFAULT_MODE=fast
+NUXT_AI_GATEWAY_API_KEY=
+NUXT_AI_EMBEDDING_MODEL=openai/text-embedding-3-small
+NUXT_PINECONE_API_KEY=
+NUXT_PINECONE_INDEX_NAME=literasiku
+NUXT_PINECONE_NAMESPACE=default
+NUXT_PINECONE_MEMORY_NAMESPACE=memory
+NUXT_MEMORY_ENABLED=true
+NUXT_RAG_MIN_SCORE=0.3
+NUXT_RAG_MAX_REFERENCES=8
 ```
 
-## Production
-
-Build the application for production:
+## Commands
 
 ```bash
-pnpm build
+yarn install
+yarn dev
+yarn lint
+yarn typecheck
+yarn build
+yarn preview
 ```
 
-Locally preview production build:
+## Model Routing
+
+- `deepseek-v4-flash`: mode `fast`, chat harian, RAG ringan, ringkasan singkat.
+- `deepseek-v4-pro`: mode `thinking`, analisis PDF panjang, planning, debugging, evaluasi, dan ReAct task kompleks.
+- `auto`: memakai `semanticRoute` untuk memilih fast/thinking.
+
+Embedding tetap dipisah dari chat model. Jika DeepSeek tidak menyediakan embedding, server memakai embedding provider yang dikonfigurasi melalui AI SDK Gateway.
+
+## Endpoints
+
+- `POST /api/ai`: AI SDK UI stream dengan `data-route`, `data-references`, `data-memory`, dan text parts.
+- `GET /api/ai-sse`: native `text/event-stream` dengan event `start`, `route`, `references`, `context`, `memory`, `delta`, `done`, `error`.
+- `POST /api/embeddings`: indexing dokumen/chunk ke Pinecone.
+- `POST /api/pdf/index`: upload PDF atau PDF text, extract/chunk/embed/upsert ke Pinecone.
+- `GET /api/pdf/status?sourceId=...`: status index PDF.
+- `POST /api/memory/upsert`: simpan memory eksplisit.
+- `GET /api/memory/search`: semantic search memory.
+- `DELETE /api/memory/delete?id=...`: hapus memory.
+- `GET /api/health`: status konfigurasi.
+
+## Index Dokumen
 
 ```bash
-pnpm preview
+curl -X POST http://localhost:3000/api/embeddings \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "sourceId": "book-123",
+    "title": "Belajar Literasi Digital",
+    "content": "Literasi digital adalah kemampuan memahami, mengevaluasi, dan menggunakan informasi digital secara bertanggung jawab.",
+    "metadata": { "author": "Tim Literasiku", "category": "edukasi", "page": 1 }
+  }'
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Index PDF
 
-## Renovate integration
+JSON text:
 
-Install [Renovate GitHub app](https://github.com/apps/renovate/installations/select_target) on your repository and you are good to go.
+```bash
+curl -X POST http://localhost:3000/api/pdf/index \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "sourceId": "pdf-123",
+    "title": "Materi Literasi Digital",
+    "fileName": "materi-literasi.pdf",
+    "text": "Isi teks PDF yang sudah diekstrak..."
+  }'
+```
+
+Multipart upload:
+
+```bash
+curl -X POST http://localhost:3000/api/pdf/index \
+  -F sourceId=pdf-123 \
+  -F title='Materi Literasi Digital' \
+  -F file=@materi-literasi.pdf
+```
+
+## Chat RAG
+
+```bash
+curl -X POST http://localhost:3000/api/ai \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "messages": [{ "id": "msg-1", "role": "user", "parts": [{ "type": "text", "text": "Ringkas PDF ini berdasarkan data library" }] }],
+    "mode": "auto",
+    "useRag": true,
+    "useMemory": true,
+    "useSkills": true,
+    "includeReferences": true,
+    "topK": 5
+  }'
+```
+
+Jawaban RAG dapat berisi marker seperti `⟦S1⟧`. Frontend merender marker itu sebagai chip hover yang menampilkan quote asli, title/fileName, page jika tersedia, chunk index, dan score. Jika marker tidak ada di structured references, UI mengabaikannya.
+
+## Native SSE
+
+```js
+const source = new EventSource('/api/ai-sse?q=' + encodeURIComponent('Apa inti PDF ini?') + '&mode=auto&includeReferences=true')
+
+source.addEventListener('route', event => console.log('route', JSON.parse(event.data)))
+source.addEventListener('references', event => console.log('references', JSON.parse(event.data)))
+source.addEventListener('delta', event => console.log(JSON.parse(event.data).text))
+source.addEventListener('done', event => {
+  console.log('done', JSON.parse(event.data))
+  source.close()
+})
+source.addEventListener('error', event => {
+  console.error('SSE error', event)
+  source.close()
+})
+```
+
+Contoh `references` event:
+
+```txt
+event: references
+data: {"items":[{"referenceId":"S1","sourceId":"pdf-123","title":"Materi Literasi Digital","fileName":"materi-literasi.pdf","mimeType":"application/pdf","page":3,"chunkIndex":8,"score":0.89,"quote":"potongan teks asli dari PDF...","preview":"ringkasan pendek..."}]}
+```
+
+## Memory
+
+Memory disimpan hanya jika user eksplisit memakai kata seperti `ingat`, `simpan`, `remember`, `catat`, atau `mulai sekarang`.
+
+```bash
+curl -X POST http://localhost:3000/api/memory/upsert \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "userId": "user-123",
+    "type": "preference",
+    "content": "Ingat, saya suka jawaban bertahap dan contoh singkat.",
+    "metadata": { "source": "chat", "importance": 0.8 }
+  }'
+```
+
+## Pinecone Notes
+
+Buat Pinecone index terlebih dahulu dengan dimensi yang sesuai model embedding `NUXT_AI_EMBEDDING_MODEL`. Aplikasi tidak membuat index otomatis saat runtime. Library/PDF memakai `NUXT_PINECONE_NAMESPACE`, memory memakai `NUXT_PINECONE_MEMORY_NAMESPACE`.
+
+Jika PDF belum di-index, AI harus mengatakan PDF belum tersedia di knowledge base. Jika page metadata tidak tersedia, UI menampilkan “Halaman tidak tersedia” dan tidak mengarang nomor halaman.

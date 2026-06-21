@@ -1,0 +1,36 @@
+package handler
+
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/literasiKu/internal/database"
+)
+
+func Health(c *gin.Context) {
+	db := database.GetDB()
+	if db == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"status":   "error",
+			"service":  "literasiku-server",
+			"database": "disconnected",
+		})
+		return
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil || sqlDB.Ping() != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"status":   "error",
+			"service":  "literasiku-server",
+			"database": "disconnected",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":   "ok",
+		"service":  "literasiku-server",
+		"database": "connected",
+	})
+}

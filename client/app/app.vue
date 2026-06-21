@@ -28,7 +28,10 @@ useSeoMeta({
   <UApp>
     <UHeader>
       <template #left>
-        <NuxtLink to="/" class="flex items-center gap-2">
+        <NuxtLink
+          to="/"
+          class="flex items-center gap-2"
+        >
           <AppLogo class="w-auto h-7 shrink-0" />
 
           <span class="text-lg font-bold tracking-tight">

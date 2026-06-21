@@ -4,6 +4,18 @@ export default defineNuxtConfig({
     '@nuxt/ui'
   ],
 
+  devtools: {
+    enabled: true
+  },
+
+  css: ['~/assets/css/main.css'],
+
+  colorMode: {
+    preference: 'light',
+    fallback: 'light',
+    classSuffix: ''
+  },
+
   ui: {
     theme: {
       colors: [
@@ -22,20 +34,26 @@ export default defineNuxtConfig({
     }
   },
 
-  colorMode: {
-    preference: 'light',
-    fallback: 'light',
-    classSuffix: ''
+  runtimeConfig: {
+    deepseekApiKey: '',
+    deepseekFastModel: 'deepseek-v4-flash',
+    deepseekThinkingModel: 'deepseek-v4-pro',
+    aiDefaultMode: 'fast',
+    aiGatewayApiKey: '',
+    aiEmbeddingModel: 'openai/text-embedding-3-small',
+    pineconeApiKey: '',
+    pineconeIndexName: 'literasiku',
+    pineconeNamespace: 'default',
+    pineconeMemoryNamespace: 'memory',
+    memoryEnabled: 'true',
+    ragMinScore: '0.3',
+    ragMaxReferences: '8',
+    goApiBaseUrl: '',
+    goInternalApiKey: ''
   },
-
-  devtools: {
-    enabled: true
-  },
-
-  css: ['~/assets/css/main.css'],
 
   routeRules: {
-    '/': { prerender: true }
+    '/': { prerender: false }
   },
 
   compatibilityDate: '2025-01-15',
