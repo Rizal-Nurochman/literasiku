@@ -11,7 +11,7 @@ const highlights = [
     icon: 'i-lucide-book-open'
   },
   {
-    label: 'AI Bersitasi',
+    label: 'AI For Learning',
     icon: 'i-lucide-bot'
   }
 ]
@@ -110,11 +110,6 @@ const highlights = [
 
     <template #right>
       <div class="flex items-center justify-center gap-2 text-sm text-muted lg:justify-end">
-        <UIcon
-          name="i-lucide-sparkles"
-          class="size-4 text-primary"
-        />
-
         <span>Cari. Pahami. Belajar lebih seru.</span>
       </div>
     </template>
