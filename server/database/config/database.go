@@ -12,16 +12,23 @@ import (
 var DB *gorm.DB
 
 func Connect(cfg Config) error {
-	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
-		cfg.DB.Host,
-		cfg.DB.User,
-		cfg.DB.Password,
-		cfg.DB.Name,
-		cfg.DB.Port,
-		cfg.DB.SSLMode,
-		cfg.DB.TimeZone,
-	)
+	var dsn string
+	if cfg.DB.RawDSN != "" {
+		// Gunakan DATABASE_URL langsung (Neon, Supabase, Railway)
+		dsn = cfg.DB.RawDSN
+	} else {
+		// Konstruksi DSN dari field terpisah (local development)
+		dsn = fmt.Sprintf(
+			"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
+			cfg.DB.Host,
+			cfg.DB.User,
+			cfg.DB.Password,
+			cfg.DB.Name,
+			cfg.DB.Port,
+			cfg.DB.SSLMode,
+			cfg.DB.TimeZone,
+		)
+	}
 
 	logLevel := logger.Warn
 	if cfg.AppEnv == "development" {
