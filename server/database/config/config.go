@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/joho/godotenv"
 )
@@ -14,35 +15,70 @@ type Config struct {
 }
 
 type DBConfig struct {
-	Host      string
-	Port      string
-	User      string
-	Password  string
-	Name      string
-	Charset   string
-	ParseTime string
-	Loc       string
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Name     string
+	SSLMode  string
+	TimeZone string
 }
 
 func LoadConfig() Config {
-	if err := godotenv.Load(); err != nil && !os.IsNotExist(err) {
+	if err := loadEnv(); err != nil {
 		log.Printf("failed to load .env file: %v", err)
 	}
 
-	return Config{
+	cfg := Config{
 		Port:   GetEnv("PORT", "8080"),
 		AppEnv: GetEnv("APP_ENV", "development"),
 		DB: DBConfig{
-			Host:      GetEnv("DB_HOST", "localhost"),
-			Port:      GetEnv("DB_PORT", "3306"),
-			User:      GetEnv("DB_USER", "root"),
-			Password:  GetEnv("DB_PASSWORD", "root"),
-			Name:      GetEnv("DB_NAME", "literasiku_db"),
-			Charset:   GetEnv("DB_CHARSET", "utf8mb4"),
-			ParseTime: GetEnv("DB_PARSE_TIME", "True"),
-			Loc:       GetEnv("DB_LOC", "Local"),
+			Host:     GetEnv("DB_HOST", "localhost"),
+			Port:     GetEnv("DB_PORT", "5432"),
+			User:     GetEnv("DB_USER", "postgres"),
+			Password: GetEnv("DB_PASSWORD", ""),
+			Name:     GetEnv("DB_NAME", "literasiku_db"),
+			SSLMode:  GetEnv("DB_SSLMODE", "disable"),
+			TimeZone: GetEnv("DB_TIMEZONE", "Asia/Jakarta"),
 		},
 	}
+
+	log.Printf("db config: host=%s port=%s user=%s dbname=%s sslmode=%s timezone=%s",
+		cfg.DB.Host, cfg.DB.Port, cfg.DB.User, cfg.DB.Name, cfg.DB.SSLMode, cfg.DB.TimeZone)
+
+	return cfg
+}
+
+func loadEnv() error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	candidates := []string{
+		filepath.Join(cwd, ".env"),
+		filepath.Join(cwd, "..", ".env"),
+		filepath.Join(cwd, "../..", ".env"),
+	}
+
+	var lastErr error
+	for _, path := range candidates {
+		if _, statErr := os.Stat(path); statErr != nil {
+			lastErr = statErr
+			continue
+		}
+		if err := godotenv.Load(path); err != nil {
+			lastErr = err
+			continue
+		}
+		log.Printf("loaded env file: %s", path)
+		return nil
+	}
+
+	if lastErr == nil {
+		lastErr = os.ErrNotExist
+	}
+	return lastErr
 }
 
 func GetEnv(key, fallback string) string {

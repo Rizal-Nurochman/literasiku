@@ -18,9 +18,9 @@ type Buku struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 
 	Kategori          KategoriBuku        `gorm:"foreignKey:IDKategori;references:IDKategori;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"kategori,omitempty"`
-	FilePDF           []FilePDF           `gorm:"foreignKey:IDBuku;references:IDBuku;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"file_pdf,omitempty"`
-	PeminjamanFisik   []PeminjamanFisik   `gorm:"foreignKey:IDBuku;references:IDBuku;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"peminjaman_fisik,omitempty"`
-	PeminjamanDigital []PeminjamanDigital `gorm:"foreignKey:IDBuku;references:IDBuku;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"peminjaman_digital,omitempty"`
+	FilePDF           []FilePDF           `gorm:"foreignKey:IDBuku;references:IDBuku" json:"file_pdf,omitempty"`
+	PeminjamanFisik   []PeminjamanFisik   `gorm:"foreignKey:IDBuku;references:IDBuku" json:"peminjaman_fisik,omitempty"`
+	PeminjamanDigital []PeminjamanDigital `gorm:"foreignKey:IDBuku;references:IDBuku" json:"peminjaman_digital,omitempty"`
 }
 
 func (Buku) TableName() string {

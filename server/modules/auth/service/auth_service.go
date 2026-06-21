@@ -45,16 +45,12 @@ func (s *authService) Register(ctx context.Context, req dto.RegisterRequest) (dt
 	}
 
 	user := &entities.User{
-		Role:          "USER",
-		Username:      req.Username,
-		PasswordHash:  string(hashedPassword),
-		NamaLengkap:   req.NamaLengkap,
-		Email:         req.Email,
-		NoKeanggotaan: req.NoKeanggotaan,
-		NoIdentitas:   req.NoIdentitas,
-		Alamat:        req.Alamat,
-		NoTelepon:     req.NoTelepon,
-		StatusAkun:    "AKTIF",
+		Role:         "USER",
+		Username:     req.Username,
+		PasswordHash: string(hashedPassword),
+		NamaLengkap:  req.NamaLengkap,
+		Email:        req.Email,
+		StatusAkun:   "AKTIF",
 	}
 
 	if err := s.authRepo.Create(user); err != nil {

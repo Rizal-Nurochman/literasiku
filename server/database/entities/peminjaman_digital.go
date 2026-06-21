@@ -14,7 +14,7 @@ type PeminjamanDigital struct {
 
 	User           User             `gorm:"foreignKey:IDUser;references:IDUser;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"user,omitempty"`
 	Buku           Buku             `gorm:"foreignKey:IDBuku;references:IDBuku;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"buku,omitempty"`
-	RiwayatChatbot []RiwayatChatbot `gorm:"foreignKey:IDPeminjamanDigital;references:IDPeminjamanDigital;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"riwayat_chatbot,omitempty"`
+	RiwayatChatbot []RiwayatChatbot `gorm:"foreignKey:IDPeminjamanDigital;references:IDPeminjamanDigital" json:"riwayat_chatbot,omitempty"`
 }
 
 func (PeminjamanDigital) TableName() string {

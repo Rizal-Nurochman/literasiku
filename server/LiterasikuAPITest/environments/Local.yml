@@ -1,0 +1,6 @@
+vars:
+  base_url: http://localhost:8080/api/v1
+  username: taqin_op
+  nama_lengkap: Taqin OP
+  email: taqin.op@literasiku.test
+  password: rahasia123

@@ -33,14 +33,10 @@ var (
 )
 
 type RegisterRequest struct {
-	Username      string `json:"username" binding:"required,min=3,max=50"`
-	Password      string `json:"password" binding:"required,min=8,max=72"`
-	NamaLengkap   string `json:"nama_lengkap" binding:"required,min=1,max=100"`
-	Email         string `json:"email" binding:"required,email,max=100"`
-	NoKeanggotaan string `json:"no_keanggotaan" binding:"omitempty,max=20"`
-	NoIdentitas   string `json:"no_identitas" binding:"omitempty,max=30"`
-	Alamat        string `json:"alamat" binding:"omitempty"`
-	NoTelepon     string `json:"no_telepon" binding:"omitempty,max=20"`
+	Username    string `json:"username" binding:"required,min=3,max=50"`
+	Password    string `json:"password" binding:"required,min=8,max=72"`
+	NamaLengkap string `json:"nama_lengkap" binding:"required,min=1,max=100"`
+	Email       string `json:"email" binding:"required,email,max=100"`
 }
 
 type LoginRequest struct {

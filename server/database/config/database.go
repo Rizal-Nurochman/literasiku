@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -13,15 +13,14 @@ var DB *gorm.DB
 
 func Connect(cfg Config) error {
 	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=%s&loc=%s",
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
+		cfg.DB.Host,
 		cfg.DB.User,
 		cfg.DB.Password,
-		cfg.DB.Host,
-		cfg.DB.Port,
 		cfg.DB.Name,
-		cfg.DB.Charset,
-		cfg.DB.ParseTime,
-		cfg.DB.Loc,
+		cfg.DB.Port,
+		cfg.DB.SSLMode,
+		cfg.DB.TimeZone,
 	)
 
 	logLevel := logger.Warn
@@ -29,8 +28,9 @@ func Connect(cfg Config) error {
 		logLevel = logger.Info
 	}
 
-	gormDB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logLevel),
+	gormDB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger:                                   logger.Default.LogMode(logLevel),
+		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
 		return fmt.Errorf("open database connection: %w", err)

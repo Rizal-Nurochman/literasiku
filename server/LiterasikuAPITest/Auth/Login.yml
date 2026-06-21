@@ -1,0 +1,51 @@
+info:
+  name: Login
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{base_url}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{email}}",
+        "password": "{{password}}"
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8080/api/v1
+    - name: email
+      value: taqin.op@literasiku.test
+    - name: password
+      value: rahasia123
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+vars:
+  postResponse:
+    - name: login_token
+      value: res.body.data.access_token
+    - name: login_user_id
+      value: res.body.data.user.id_user
+    - name: login_user_email
+      value: res.body.data.user.email
+    - name: login_user_role
+      value: res.body.data.user.role
+
+assertions:
+  - res.status: eq 200
+  - res.body.status: eq true
+  - res.body.message: contains "success login"
+  - res.body.data.access_token: isString
+  - res.body.data.token_type: eq "Bearer"
+  - res.body.data.user.email: eq "{{email}}"
+  - res.body.data.user.status_akun: eq "AKTIF"

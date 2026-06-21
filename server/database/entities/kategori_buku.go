@@ -8,7 +8,7 @@ type KategoriBuku struct {
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 
-	Buku []Buku `gorm:"foreignKey:IDKategori;references:IDKategori;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"buku,omitempty"`
+	Buku []Buku `gorm:"foreignKey:IDKategori;references:IDKategori" json:"buku,omitempty"`
 }
 
 func (KategoriBuku) TableName() string {
