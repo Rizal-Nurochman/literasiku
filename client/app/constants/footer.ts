@@ -4,9 +4,9 @@ export const FOOTER_LINKS: FooterColumn[] = [
   {
     label: 'Tentang',
     items: [
-      { label: 'Beranda', to: '/' },
-      { label: 'Fitur', to: '#fitur' },
-      { label: 'Cara Kerja', to: '#cara-kerja' }
+      { label: 'Beranda', to: '/#beranda' },
+      { label: 'Fitur', to: '/#fitur' },
+      { label: 'Cara Kerja', to: '/#cara-kerja' }
     ]
   },
   {
@@ -19,8 +19,8 @@ export const FOOTER_LINKS: FooterColumn[] = [
   {
     label: 'Akses',
     items: [
-      { label: 'Login Admin', to: '/admin/login' },
-      { label: 'Katalog', to: '#katalog' }
+      { label: 'Login Admin', to: '/auth/login' },
+      { label: 'Katalog', to: '/dashboard/katalog' }
     ]
   }
 ]
