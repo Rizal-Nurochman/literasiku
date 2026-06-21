@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+import AppCursor from '~/components/common/AppCursor.vue'
+
 useHead({
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
@@ -26,50 +28,10 @@ useSeoMeta({
 
 <template>
   <UApp>
-    <UHeader>
-      <template #left>
-        <NuxtLink
-          to="/"
-          class="flex items-center gap-2"
-        >
-          <AppLogo class="w-auto h-7 shrink-0" />
+    <AppCursor />
 
-          <span class="text-lg font-bold tracking-tight">
-            Literasiku
-          </span>
-        </NuxtLink>
-      </template>
-
-      <template #right>
-        <UColorModeButton />
-
-        <UButton
-          to="/"
-          label="Mulai Belajar"
-          color="primary"
-          variant="solid"
-        />
-      </template>
-    </UHeader>
-
-    <UMain>
+    <NuxtLayout>
       <NuxtPage />
-    </UMain>
-
-    <USeparator icon="i-lucide-book-open" />
-
-    <UFooter>
-      <template #left>
-        <p class="text-sm text-muted">
-          Literasiku • Digital Library with AI Agent • © {{ new Date().getFullYear() }}
-        </p>
-      </template>
-
-      <template #right>
-        <p class="text-sm text-muted">
-          Cari. Pahami. Belajar lebih seru.
-        </p>
-      </template>
-    </UFooter>
+    </NuxtLayout>
   </UApp>
 </template>

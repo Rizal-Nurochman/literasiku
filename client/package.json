@@ -11,14 +11,14 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
-    "@ai-sdk/deepseek": "^2.0.39",
-    "@ai-sdk/gateway": "^3.0.133",
-    "@ai-sdk/vue": "^3.0.208",
     "@iconify-json/lucide": "^1.2.111",
     "@iconify-json/simple-icons": "^1.2.84",
     "@nuxt/ui": "^4.8.1",
     "@pinecone-database/pinecone": "^8.0.0",
-    "ai": "^6.0.208",
+    "@tanstack/vue-query": "^5.101.0",
+    "@vueuse/core": "^14.3.0",
+    "@vueuse/motion": "^3.0.3",
+    "langchain": "^1.5.0",
     "nuxt": "^4.4.6",
     "pdf-parse": "^2.4.5",
     "tailwindcss": "^4.3.0",

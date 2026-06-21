@@ -36,3 +36,127 @@
   --ui-primary: var(--color-sea-400);
   --ui-secondary: var(--color-cyan-400);
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+.landing-section {
+  padding-block: 2.5rem;
+}
+
+.landing-section-compact {
+  padding-block: 2rem;
+}
+
+.landing-section-hero {
+  padding-block: 4rem;
+}
+
+@media (min-width: 640px) {
+  .landing-section {
+    padding-block: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .landing-section {
+    padding-block: 3.5rem;
+  }
+
+  .landing-section-compact {
+    padding-block: 2.75rem;
+  }
+
+  .landing-section-hero {
+    min-height: calc(100vh - 5rem);
+    padding-block: 5rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .has-custom-cursor,
+  .has-custom-cursor * {
+    cursor: none !important;
+  }
+
+  .has-custom-cursor input,
+  .has-custom-cursor textarea,
+  .has-custom-cursor [contenteditable="true"] {
+    cursor: text !important;
+  }
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--ui-primary), var(--ui-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.bg-grid-soft {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--ui-border) 45%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--ui-border) 45%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.animated-orb {
+  animation: literasiku-float 16s ease-in-out infinite;
+}
+
+@keyframes literasiku-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(16px, -18px, 0) scale(1.04);
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 850ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+  animation-name: theme-circle-reveal;
+}
+
+@keyframes theme-circle-reveal {
+  from {
+    clip-path: circle(0 at var(--theme-transition-x, 50vw) var(--theme-transition-y, 4rem));
+  }
+
+  to {
+    clip-path: circle(150vmax at var(--theme-transition-x, 50vw) var(--theme-transition-y, 4rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animated-orb {
+    animation: none;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
