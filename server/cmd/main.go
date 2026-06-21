@@ -3,19 +3,19 @@ package main
 import (
 	"log"
 
-	"github.com/literasiKu/internal/config"
-	"github.com/literasiKu/internal/database"
-	"github.com/literasiKu/internal/router"
+	"github.com/literasiKu/database"
+	"github.com/literasiKu/database/config"
+	"github.com/literasiKu/router"
 )
 
 func main() {
 	cfg := config.LoadConfig()
 
-	if err := database.Connect(cfg); err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+	if err := config.Connect(cfg); err != nil {
+		log.Fatalf("failed to cconfig: %v", err)
 	}
 	defer func() {
-		if err := database.Close(); err != nil {
+		if err := config.Close(); err != nil {
 			log.Printf("failed to close database: %v", err)
 		}
 	}()

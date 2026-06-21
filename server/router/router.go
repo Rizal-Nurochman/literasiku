@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/literasiKu/internal/handler"
+	"github.com/literasiKu/modules/health/handler"
 )
 
 func New() *gin.Engine {

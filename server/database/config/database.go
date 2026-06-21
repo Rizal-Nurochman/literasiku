@@ -1,10 +1,9 @@
-package database
+package config
 
 import (
 	"fmt"
 	"time"
 
-	"github.com/literasiKu/internal/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -12,7 +11,7 @@ import (
 
 var DB *gorm.DB
 
-func Connect(cfg config.Config) error {
+func Connect(cfg Config) error {
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=%s&loc=%s",
 		cfg.DB.User,

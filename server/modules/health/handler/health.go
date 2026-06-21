@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/literasiKu/internal/database"
+	"github.com/literasiKu/database/config"
 )
 
 func Health(c *gin.Context) {
-	db := database.GetDB()
+	db := config.GetDB()
 	if db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"status":   "error",
