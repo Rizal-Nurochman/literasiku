@@ -1,7 +1,8 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    '@vueuse/motion/nuxt'
   ],
 
   devtools: {
