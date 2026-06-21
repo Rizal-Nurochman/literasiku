@@ -1,7 +1,9 @@
 package api
 
 import (
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/literasiKu/database/config"
@@ -15,6 +17,14 @@ var engine *gin.Engine
 
 func init() {
 	gin.SetMode(gin.ReleaseMode)
+
+	dbURL := os.Getenv("DATABASE_URL")
+	log.Printf("[DEBUG] DATABASE_URL length=%d", len(dbURL))
+	if dbURL == "" {
+		log.Println("[DEBUG] DATABASE_URL is EMPTY — env var not injected by Vercel")
+	} else {
+		log.Printf("[DEBUG] DATABASE_URL is SET, prefix=%s...", dbURL[:min(30, len(dbURL))])
+	}
 
 	cfg := config.LoadConfig()
 	if err := config.Connect(cfg); err != nil {
