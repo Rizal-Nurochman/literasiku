@@ -11,7 +11,6 @@ export default defineEventHandler(async (event): Promise<AuthSession> => {
       method: 'POST',
       body: body,
       headers: {
-        'Authorization': `Bearer ${config.goInternalApiKey}`,
         'Content-Type': 'application/json'
       }
     })

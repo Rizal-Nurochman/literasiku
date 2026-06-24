@@ -9,3 +9,7 @@ export interface AuthSession {
   token: string
   user: AuthUser
 }
+
+export interface AuthRegister{
+  
+}

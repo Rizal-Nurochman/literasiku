@@ -113,8 +113,7 @@ const handleSubmit = async (event: { data: LoginInput | RegisterInput }) => {
   if (isLogin.value) {
     await loginMutation.mutateAsync(event.data as LoginInput)
   } else {
-    const { confirmPassword, ...payload } = event.data as any
-    await registerMutation.mutateAsync(payload)
+    await registerMutation.mutateAsync(event.data as RegisterInput)
   }
 
   await navigateTo('/')

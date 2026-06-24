@@ -1,18 +1,37 @@
 import { registerSchema } from '#shared/schemas/auth.schema'
 import type { AuthSession } from '#shared/types/auth'
 
+export const apiCall = async <T>(promise: Promise<T>): Promise<[any, T | null]> => {
+  try {
+    const data = await promise
+    return [null, data]
+  } catch (error) {
+    return [error, null]
+  }
+}
+
 export default defineEventHandler(async (event): Promise<AuthSession> => {
   const body = await readValidatedBody(event, registerSchema.parse)
+  const config = useRuntimeConfig(event)
 
-  await new Promise(resolve => setTimeout(resolve, 400 + Math.random() * 500))
+  const [error, res] = await apiCall(
+    $fetch<AuthSession>(`${config.goApiBaseUrl}/api/v1/auth/register`, {
+      method: 'POST',
+      body: body,
+      headers: {
+        'Authorization': `Bearer ${config.goInternalApiKey}`,
+        'Content-Type': 'application/json'
+      }
+    })
+  )
 
-  return {
-    token: `mock-${Date.now()}`,
-    user: {
-      id: 'usr_1',
-      name: body.name,
-      email: body.email,
-      role: 'anggota'
-    }
+  if (error) {
+    throw createError({
+      statusCode: error.response?.status || 500,
+      statusMessage: error.data?.message || error.message || 'Gagal terhubung ke backend utama',
+      data: error.data
+    })
   }
+
+  return res!
 })
