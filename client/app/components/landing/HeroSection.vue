@@ -168,7 +168,6 @@ onBeforeUnmount(() => {
   >
     <UPageHero
       orientation="horizontal"
-      headline="AI-Powered Digital Library"
       description="Literasiku menggabungkan katalog online, peminjaman buku, PDF reader, dan AI assistant bersitasi agar pengalaman membaca lebih cepat, terarah, dan menyenangkan."
       :links="links"
       class="py-0 pt-4 sm:pt-6 lg:pt-8"
@@ -416,24 +415,6 @@ onBeforeUnmount(() => {
               </div>
             </div>
           </UCard>
-        </div>
-
-        <div
-          v-motion
-          :initial="{ opacity: 0, y: 16 }"
-          :enter="{ opacity: 1, y: 0, transition: { duration, delay: shouldReduceMotion ? 0 : 280, ease: 'easeOut' } }"
-          class="mx-auto mt-5 max-w-md rounded-2xl border border-default/70 bg-default/60 p-3 shadow-xl shadow-primary/5 backdrop-blur-xl"
-        >
-          <div class="flex items-center justify-center gap-3 text-sm text-muted">
-            <UIcon
-              name="i-lucide-sparkles"
-              class="size-4 text-primary"
-            />
-
-            <span>
-              Cari koleksi, baca PDF, dan pahami materi dalam satu alur.
-            </span>
-          </div>
         </div>
       </div>
     </UPageHero>

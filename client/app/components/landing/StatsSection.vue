@@ -1,36 +1,19 @@
 <script setup lang="ts">
 import { usePreferredReducedMotion } from '@vueuse/core'
-import { STATS } from '~/constants/stats'
+import { capabilityMeta, STATS } from '~/constants/stats'
 
 const preferredMotion = usePreferredReducedMotion()
 const duration = computed(() => preferredMotion.value === 'reduce' ? 0 : 350)
 const shouldReduceMotion = computed(() => preferredMotion.value === 'reduce')
 
-const capabilityMeta = [
-  {
-    icon: 'i-lucide-library',
-    description: 'Koleksi bisa ditemukan tanpa menelusuri rak secara manual.'
-  },
-  {
-    icon: 'i-lucide-handshake',
-    description: 'Alur pengajuan tetap terhubung dengan buku fisik.'
-  },
-  {
-    icon: 'i-lucide-file-text',
-    description: 'Bacaan digital dibuka dalam viewer internal yang terkontrol.'
-  },
-  {
-    icon: 'i-lucide-bot',
-    description: 'Pertanyaan anggota dijawab dengan konteks dan marker sitasi.'
-  }
-]
+
 </script>
 
 <template>
   <section
     id="highlight"
     v-motion
-    class="landing-section-compact"
+    class="landing-section-compact relative overflow-hidden"
     :initial="{ opacity: 0, y: 18 }"
     :visible-once="{ opacity: 1, y: 0, transition: { duration, ease: 'easeOut' } }"
   >
@@ -39,30 +22,44 @@ const capabilityMeta = [
       description="Sorotan ini berupa kapabilitas produk, bukan angka klaim yang belum terhubung ke data operasional."
       class="py-0"
     >
-      <UPageGrid class="gap-4 sm:gap-5 lg:gap-6">
+      <UPageGrid class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
         <UCard
           v-for="(stat, index) in STATS"
           :key="stat.label"
           v-motion
           :initial="{ opacity: 0, y: 14 }"
           :visible-once="{ opacity: 1, y: 0, transition: { duration, delay: shouldReduceMotion ? 0 : index * 60, ease: 'easeOut' } }"
-          class="group h-full transition-all duration-300 hover:-translate-y-1 hover:border-secondary/40 hover:shadow-xl hover:shadow-secondary/10"
+          class="group relative h-full overflow-hidden transition-all duration-300 hover:-translate-y-1.5 border border-default/60 bg-elevated/40 backdrop-blur-sm hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5"
           data-cursor="card"
         >
-          <div class="flex size-11 items-center justify-center rounded-xl bg-secondary/10 text-secondary transition-transform duration-300 group-hover:scale-105">
-            <UIcon
-              :name="capabilityMeta[index]?.icon ?? 'i-lucide-sparkles'"
-              class="size-5"
-            />
+          <div
+            aria-hidden="true"
+            class="pointer-events-none absolute -right-12 -top-12 size-24 rounded-full bg-primary/5 blur-2xl transition-all duration-500 group-hover:size-32 group-hover:bg-primary/10"
+          />
+
+          <div class="flex flex-col h-full justify-between">
+            <div>
+              <div 
+                :class="[
+                  'flex size-12 items-center justify-center rounded-xl bg-gradient-to-br border transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg',
+                  capabilityMeta[index]?.gradient ?? 'from-secondary/10 to-primary/10 text-secondary border-secondary/20'
+                ]"
+              >
+                <UIcon
+                  :name="capabilityMeta[index]?.icon ?? 'i-lucide-sparkles'"
+                  class="size-5"
+                />
+              </div>
+
+              <h3 class="mt-5 font-bold text-xl tracking-tight text-highlighted group-hover:text-primary transition-colors duration-300">
+                {{ stat.label }}
+              </h3>
+
+              <p class="mt-2 text-sm leading-relaxed text-muted">
+                {{ capabilityMeta[index]?.description }}
+              </p>
+            </div>
           </div>
-
-          <p class="mt-4 font-semibold text-highlighted">
-            {{ stat.label }}
-          </p>
-
-          <p class="mt-2 text-sm leading-6 text-muted">
-            {{ capabilityMeta[index]?.description }}
-          </p>
         </UCard>
       </UPageGrid>
     </UPageSection>

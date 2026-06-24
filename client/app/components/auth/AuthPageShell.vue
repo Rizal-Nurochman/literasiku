@@ -35,12 +35,6 @@
         </div>
 
         <div class="max-w-xl space-y-5">
-          <UBadge
-            color="secondary"
-            variant="subtle"
-            icon="i-lucide-sparkles"
-            label="Digital Library with AI Agent"
-          />
 
           <h1 class="text-3xl font-bold tracking-tight text-highlighted sm:text-4xl lg:text-5xl">
             Akses perpustakaan digital dengan alur yang lebih pintar.

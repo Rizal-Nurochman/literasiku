@@ -83,12 +83,6 @@ const handleSubmit = async (event: { data: LoginInput | RegisterInput }) => {
     :ui="{ body: 'p-6 sm:p-8' }"
   >
     <div class="mb-6 space-y-2">
-      <UBadge
-        color="primary"
-        variant="subtle"
-        icon="i-lucide-lock-keyhole"
-        label="Akses Anggota"
-      />
 
       <h2 class="text-2xl font-bold tracking-tight text-highlighted">
         {{ title }}

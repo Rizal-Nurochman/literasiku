@@ -11,10 +11,29 @@ export interface BookPreview {
   digitalAvailable: boolean
 }
 
+export interface FeatureVisual {
+  type: any
+  component?: string
+  data?: any
+}
+
+export interface FeatureStats {
+  label: string
+  value: string
+  trend?: string
+  trendUp?: boolean
+}
+
 export interface FeatureItem {
   icon: string
   title: string
   description: string
+  colSpan?: 1 | 2 // Lebar card (1 atau 2 kolom)
+  rowSpan?: 1 | 2 // Tinggi card (1 atau 2 baris)
+  visual: FeatureVisual
+  stats?: FeatureStats[]
+  badges?: string[]
+  gradient?: string
 }
 
 export interface StepItem {

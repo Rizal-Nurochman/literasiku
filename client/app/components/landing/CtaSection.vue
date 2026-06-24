@@ -29,7 +29,7 @@ const links = computed<ButtonProps[]>(() => [
       title="Siap menjelajahi perpustakaan digital yang lebih pintar?"
       description="Mulai dari pencarian koleksi, peminjaman, membaca PDF, sampai bertanya pada AI dengan sitasi — semua dibuat lebih mudah dalam Literasiku."
       :links="links"
-      class="relative overflow-hidden rounded-3xl border border-default/70 bg-gradient-to-br from-primary/15 via-secondary/10 to-transparent"
+      class="relative overflow-hidden rounded-3xl border mb-8 max-w-[80%] mx-auto  shadow-2xl shadow-primary/80 bg-gradient-to-br from-primary/15 via-secondary/10 to-transparent"
     />
   </section>
 </template>
