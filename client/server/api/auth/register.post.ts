@@ -26,6 +26,7 @@ export default defineEventHandler(async (event): Promise<AuthSession> => {
   )
 
   if (error) {
+    console.log(error)
     throw createError({
       statusCode: error.response?.status || 500,
       statusMessage: error.data?.message || error.message || 'Gagal terhubung ke backend utama',
