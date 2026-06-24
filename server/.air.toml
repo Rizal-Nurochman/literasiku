@@ -1,0 +1,28 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # Tunjuk file main.go yang ada di dalam folder cmd
+  cmd = "go build -o ./tmp/main ./cmd/main.go"
+  
+  # Jalankan binary yang sudah di-build
+  bin = "./tmp/main"
+  
+  # File apa saja yang jika berubah akan memicu auto-reload
+  include_ext = ["go", "tpl", "tmpl", "html", "env"]
+  
+  # Folder yang diabaikan agar tidak boros memori
+  exclude_dir = ["assets", "tmp", "vendor", "frontend", "node_modules"]
+  
+  # Tunda sedikit saat build agar tidak bentrok
+  delay = 1000
+
+[color]
+  main = "magenta"
+  watcher = "cyan"
+  build = "yellow"
+  runner = "green"
+
+[misc]
+  # Hapus folder tmp saat Air dimatikan
+  clean_on_exit = true

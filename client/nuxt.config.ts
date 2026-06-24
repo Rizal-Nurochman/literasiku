@@ -49,8 +49,8 @@ export default defineNuxtConfig({
     memoryEnabled: 'true',
     ragMinScore: '0.3',
     ragMaxReferences: '8',
-    goApiBaseUrl: '',
-    goInternalApiKey: ''
+    goApiBaseUrl: process.env.NUXT_GO_API_BASE_URL || 'http://localhost:8080',
+    goInternalApiKey: process.env.NUXT_GO_INTERNAL_API_KEY,
   },
 
   routeRules: {

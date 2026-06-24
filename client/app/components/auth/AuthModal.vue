@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { loginSchema, registerSchema } from '#shared/schemas/auth.schema'
 import type { LoginInput, RegisterInput } from '#shared/schemas/auth.schema'
+import { useAuth } from '~/composables/useAuth'
 
 const {
   authModalOpen,

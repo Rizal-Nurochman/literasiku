@@ -43,34 +43,78 @@ const fields = computed(() => {
       placeholder: 'Nama anggota',
       required: true
     },
-    ...common
+    ...common,
+    {
+      name: 'confirmPassword',
+      type: 'password',
+      label: 'Konfirmasi Kata Sandi',
+      placeholder: 'Masukkan ulang kata sandi',
+      required: true
+    }
   ]
 })
 
 const mutationError = computed(() => {
-  const error = isLogin.value ? loginMutation.error.value : registerMutation.error.value
+  const error = isLogin.value
+    ? loginMutation.error.value
+    : registerMutation.error.value
 
   if (!error) {
     return ''
   }
 
-  return 'Periksa kembali data akun yang Anda masukkan.'
+  return (
+    (error as any).data?.statusMessage ||
+    (error as any).data?.message ||
+    (error as any).message ||
+    'Terjadi kesalahan, silakan coba lagi.'
+  )
 })
 
-const schema = computed(() => isLogin.value ? loginSchema : registerSchema)
-const loading = computed(() => isLogin.value ? loginMutation.isPending.value : registerMutation.isPending.value)
-const submitLabel = computed(() => isLogin.value ? 'Masuk' : 'Daftar')
-const title = computed(() => isLogin.value ? 'Masuk ke Literasiku' : 'Buat Akun Literasiku')
-const description = computed(() => isLogin.value ? 'Lanjutkan akses katalog, peminjaman, dan bacaan digital Anda.' : 'Daftar untuk mulai mencari buku, membaca PDF, dan bertanya ke AI.')
-const targetLink = computed(() => isLogin.value ? '/auth/register' : '/auth/login')
-const targetLabel = computed(() => isLogin.value ? 'Daftar' : 'Masuk')
-const prompt = computed(() => isLogin.value ? 'Belum punya akun?' : 'Sudah punya akun?')
+const schema = computed(() =>
+  isLogin.value ? loginSchema : registerSchema
+)
+
+const loading = computed(() =>
+  isLogin.value
+    ? loginMutation.isPending.value
+    : registerMutation.isPending.value
+)
+
+const submitLabel = computed(() =>
+  isLogin.value ? 'Masuk' : 'Daftar'
+)
+
+const title = computed(() =>
+  isLogin.value
+    ? 'Masuk ke Literasiku'
+    : 'Buat Akun Literasiku'
+)
+
+const description = computed(() =>
+  isLogin.value
+    ? 'Lanjutkan akses katalog, peminjaman, dan bacaan digital Anda.'
+    : 'Daftar untuk mulai mencari buku, membaca PDF, dan bertanya ke AI.'
+)
+
+const targetLink = computed(() =>
+  isLogin.value ? '/auth/register' : '/auth/login'
+)
+
+const targetLabel = computed(() =>
+  isLogin.value ? 'Daftar' : 'Masuk'
+)
+
+const prompt = computed(() =>
+  isLogin.value ? 'Belum punya akun?' : 'Sudah punya akun?'
+)
 
 const handleSubmit = async (event: { data: LoginInput | RegisterInput }) => {
   if (isLogin.value) {
     await loginMutation.mutateAsync(event.data as LoginInput)
   } else {
-    await registerMutation.mutateAsync(event.data as RegisterInput)
+    const { confirmPassword, ...payload } = event.data as any
+    await registerMutation.mutateAsync(payload)
   }
 
   await navigateTo('/')
@@ -83,7 +127,6 @@ const handleSubmit = async (event: { data: LoginInput | RegisterInput }) => {
     :ui="{ body: 'p-6 sm:p-8' }"
   >
     <div class="mb-6 space-y-2">
-
       <h2 class="text-2xl font-bold tracking-tight text-highlighted">
         {{ title }}
       </h2>
@@ -106,7 +149,12 @@ const handleSubmit = async (event: { data: LoginInput | RegisterInput }) => {
         :key="mode"
         :fields="fields"
         :schema="schema"
-        :submit="{ label: submitLabel, block: true, color: 'primary', size: 'lg' }"
+        :submit="{
+          label: submitLabel,
+          block: true,
+          color: 'primary',
+          size: 'lg'
+        }"
         :loading="loading"
         @submit="handleSubmit"
       >
