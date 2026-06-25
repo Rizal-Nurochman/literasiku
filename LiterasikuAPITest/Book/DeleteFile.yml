@@ -1,0 +1,31 @@
+info:
+  name: Delete File
+  type: http
+  seq: 24
+
+http:
+  method: DELETE
+  url: "{{base_url}}/files/{{file_id}}"
+  auth:
+    type: bearer
+    token: "{{login_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8080/api/v1
+    - name: login_token
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpc3MiOiJsaXRlcmFzaWt1IiwiaWF0IjoxNzgyMDM4OTQwfQ.KbCj6mAk1dzKXaLB1odEnPhHbUxm-M9Ybr0ybec7rNI
+    - name: file_id
+      value: 1
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+assertions:
+  - res.status: eq 200
+  - res.body.status: eq true
+  - res.body.message: contains "File deleted successfully"

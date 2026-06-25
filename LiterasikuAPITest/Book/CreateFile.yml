@@ -1,0 +1,52 @@
+info:
+  name: Create File (Upload PDF Metadata)
+  type: http
+  seq: 20
+
+http:
+  method: POST
+  url: "{{base_url}}/files"
+  body:
+    type: json
+    data: |-
+      {
+        "book_id": {{book_id}},
+        "file_path": "/storage/books/laskar-pelangi.pdf",
+        "file_name": "Laskar Pelangi.pdf",
+        "file_size": 5242880,
+        "upload_date": "2026-01-15",
+        "status": "ACTIVE"
+      }
+  auth:
+    type: bearer
+    token: "{{login_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8080/api/v1
+    - name: login_token
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiQURNSU4iLCJpc3MiOiJsaXRlcmFzaWt1IiwiaWF0IjoxNzgyMDM4OTQwfQ.KbCj6mAk1dzKXaLB1odEnPhHbUxm-M9Ybr0ybec7rNI
+    - name: book_id
+      value: 1
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+vars:
+  postResponse:
+    - name: file_id
+      value: res.body.data.id
+
+assertions:
+  - res.status: eq 201
+  - res.body.status: eq true
+  - res.body.message: contains "File created successfully"
+  - res.body.data.id: isNumber
+  - res.body.data.book_id: eq {{book_id}}
+  - res.body.data.file_name: eq "Laskar Pelangi.pdf"
+  - res.body.data.file_size: eq 5242880
+  - res.body.data.status: eq "ACTIVE"

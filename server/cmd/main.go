@@ -8,6 +8,9 @@ import (
 	"github.com/literasiKu/modules/auth/handler"
 	authrepo "github.com/literasiKu/modules/auth/repository"
 	authservice "github.com/literasiKu/modules/auth/service"
+	bookrepo "github.com/literasiKu/modules/book/repository"
+	bookservice "github.com/literasiKu/modules/book/service"
+	bookhandler "github.com/literasiKu/modules/book/handler"
 	"github.com/literasiKu/router"
 )
 
@@ -27,14 +30,31 @@ func main() {
 		log.Fatalf("failed to migrate database: %v", err)
 	}
 
+	db := config.GetDB()
+
 	jwtService := authservice.NewJWTService()
-	authRepo := authrepo.NewAuthRepository(config.GetDB())
+	authRepo := authrepo.NewAuthRepository(db)
 	authSvc := authservice.NewAuthService(authRepo, jwtService)
 	authHandler := handler.NewAuthHandler(authSvc)
 
+	bookRepo := bookrepo.NewBookRepository(db)
+	categoryRepo := bookrepo.NewBookCategoryRepository(db)
+	fileRepo := bookrepo.NewFileRepository(db)
+
+	bookSvc := bookservice.NewBookService(bookRepo, categoryRepo)
+	categorySvc := bookservice.NewBookCategoryService(categoryRepo)
+	fileSvc := bookservice.NewFileService(fileRepo, bookRepo)
+
+	bookHandler := bookhandler.NewBookHandler(bookSvc)
+	categoryHandler := bookhandler.NewBookCategoryHandler(categorySvc)
+	fileHandler := bookhandler.NewFileHandler(fileSvc)
+
 	app := router.New(router.Deps{
-		AuthHandler: authHandler,
-		JWTService:  jwtService,
+		AuthHandler:     authHandler,
+		BookHandler:     bookHandler,
+		CategoryHandler: categoryHandler,
+		FileHandler:     fileHandler,
+		JWTService:      jwtService,
 	})
 
 	if err := app.Run(":" + cfg.Port); err != nil {

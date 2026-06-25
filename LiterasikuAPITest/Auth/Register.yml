@@ -11,7 +11,7 @@ http:
     data: |-
       {
         "username": "{{username}}",
-        "nama_lengkap": "{{nama_lengkap}}",
+        "full_name": "{{full_name}}",
         "email": "{{email}}",
         "password": "{{password}}"
       }
@@ -23,7 +23,7 @@ runtime:
       value: http://localhost:8080/api/v1
     - name: username
       value: taqin_op
-    - name: nama_lengkap
+    - name: full_name
       value: Taqin OP
     - name: email
       value: taqin.op@literasiku.test

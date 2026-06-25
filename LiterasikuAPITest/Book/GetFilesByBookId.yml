@@ -1,0 +1,28 @@
+info:
+  name: Get Files By Book ID
+  type: http
+  seq: 21
+
+http:
+  method: GET
+  url: "{{base_url}}/files/book/{{book_id}}"
+  auth: inherit
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8080/api/v1
+    - name: book_id
+      value: 1
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+assertions:
+  - res.status: eq 200
+  - res.body.status: eq true
+  - res.body.message: contains "Files retrieved successfully"
+  - res.body.data: isArray

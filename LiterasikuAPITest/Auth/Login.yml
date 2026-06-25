@@ -35,7 +35,7 @@ vars:
     - name: login_token
       value: res.body.data.access_token
     - name: login_user_id
-      value: res.body.data.user.id_user
+      value: res.body.data.user.id
     - name: login_user_email
       value: res.body.data.user.email
     - name: login_user_role
@@ -48,4 +48,4 @@ assertions:
   - res.body.data.access_token: isString
   - res.body.data.token_type: eq "Bearer"
   - res.body.data.user.email: eq "{{email}}"
-  - res.body.data.user.status_akun: eq "AKTIF"
+  - res.body.data.user.status: eq "ACTIVE"
