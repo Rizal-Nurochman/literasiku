@@ -28,7 +28,7 @@ func (r *bookRepository) Create(book *entities.Book) error {
 
 func (r *bookRepository) FindByID(id uint) (*entities.Book, error) {
 	var book entities.Book
-	err := r.db.Preload("Category").Preload("Files").First(&book, id).Error
+	err := r.db.First(&book, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (r *bookRepository) FindAll(page, limit int, search string, categoryID *uin
 	var books []entities.Book
 	var total int64
 
-	query := r.db.Model(&entities.Book{}).Preload("Category").Preload("Files")
+	query := r.db.Model(&entities.Book{})
 
 	if search != "" {
 		searchTerm := "%" + search + "%"

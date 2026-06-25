@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/literasiKu/database/entities"
-	"github.com/literasiKu/modules/book/dto"
-	"github.com/literasiKu/modules/book/service"
+	"github.com/literasiKu/modules/file/dto"
+	"github.com/literasiKu/modules/file/service"
 	"github.com/literasiKu/pkg/utils"
 	"github.com/gin-gonic/gin"
 )

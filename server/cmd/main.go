@@ -11,6 +11,12 @@ import (
 	bookrepo "github.com/literasiKu/modules/book/repository"
 	bookservice "github.com/literasiKu/modules/book/service"
 	bookhandler "github.com/literasiKu/modules/book/handler"
+	categoryrepo "github.com/literasiKu/modules/category/repository"
+	categoryservice "github.com/literasiKu/modules/category/service"
+	categoryhandler "github.com/literasiKu/modules/category/handler"
+	filerepo "github.com/literasiKu/modules/file/repository"
+	fileservice "github.com/literasiKu/modules/file/service"
+	filehandler "github.com/literasiKu/modules/file/handler"
 	"github.com/literasiKu/router"
 )
 
@@ -38,16 +44,16 @@ func main() {
 	authHandler := handler.NewAuthHandler(authSvc)
 
 	bookRepo := bookrepo.NewBookRepository(db)
-	categoryRepo := bookrepo.NewBookCategoryRepository(db)
-	fileRepo := bookrepo.NewFileRepository(db)
+	categoryRepo := categoryrepo.NewCategoryRepository(db)
+	fileRepo := filerepo.NewFileRepository(db)
 
 	bookSvc := bookservice.NewBookService(bookRepo, categoryRepo)
-	categorySvc := bookservice.NewBookCategoryService(categoryRepo)
-	fileSvc := bookservice.NewFileService(fileRepo, bookRepo)
+	categorySvc := categoryservice.NewCategoryService(categoryRepo)
+	fileSvc := fileservice.NewFileService(fileRepo, bookRepo)
 
 	bookHandler := bookhandler.NewBookHandler(bookSvc)
-	categoryHandler := bookhandler.NewBookCategoryHandler(categorySvc)
-	fileHandler := bookhandler.NewFileHandler(fileSvc)
+	categoryHandler := categoryhandler.NewCategoryHandler(categorySvc)
+	fileHandler := filehandler.NewFileHandler(fileSvc)
 
 	app := router.New(router.Deps{
 		AuthHandler:     authHandler,

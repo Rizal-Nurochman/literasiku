@@ -7,8 +7,9 @@ import (
 	"time"
 
 	"github.com/literasiKu/database/entities"
-	"github.com/literasiKu/modules/book/dto"
-	"github.com/literasiKu/modules/book/repository"
+	"github.com/literasiKu/modules/file/dto"
+	"github.com/literasiKu/modules/file/repository"
+	bookrepository "github.com/literasiKu/modules/book/repository"
 	"gorm.io/gorm"
 )
 
@@ -22,10 +23,10 @@ type FileService interface {
 
 type fileService struct {
 	fileRepo repository.FileRepository
-	bookRepo repository.BookRepository
+	bookRepo bookrepository.BookRepository
 }
 
-func NewFileService(fileRepo repository.FileRepository, bookRepo repository.BookRepository) FileService {
+func NewFileService(fileRepo repository.FileRepository, bookRepo bookrepository.BookRepository) FileService {
 	return &fileService{
 		fileRepo: fileRepo,
 		bookRepo: bookRepo,

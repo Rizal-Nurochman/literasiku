@@ -6,28 +6,28 @@ import (
 	"fmt"
 
 	"github.com/literasiKu/database/entities"
-	"github.com/literasiKu/modules/book/dto"
-	"github.com/literasiKu/modules/book/repository"
+	"github.com/literasiKu/modules/category/dto"
+	"github.com/literasiKu/modules/category/repository"
 	"gorm.io/gorm"
 )
 
-type BookCategoryService interface {
-	Create(ctx context.Context, req dto.BookCategoryRequest) (*entities.BookCategory, error)
+type CategoryService interface {
+	Create(ctx context.Context, req dto.CategoryRequest) (*entities.BookCategory, error)
 	GetByID(ctx context.Context, id uint) (*entities.BookCategory, error)
 	GetAll(ctx context.Context, page, limit int, search string) ([]entities.BookCategory, int64, error)
-	Update(ctx context.Context, id uint, req dto.BookCategoryRequest) (*entities.BookCategory, error)
+	Update(ctx context.Context, id uint, req dto.CategoryRequest) (*entities.BookCategory, error)
 	Delete(ctx context.Context, id uint) error
 }
 
-type bookCategoryService struct {
-	categoryRepo repository.BookCategoryRepository
+type categoryService struct {
+	categoryRepo repository.CategoryRepository
 }
 
-func NewBookCategoryService(categoryRepo repository.BookCategoryRepository) BookCategoryService {
-	return &bookCategoryService{categoryRepo: categoryRepo}
+func NewCategoryService(categoryRepo repository.CategoryRepository) CategoryService {
+	return &categoryService{categoryRepo: categoryRepo}
 }
 
-func (s *bookCategoryService) Create(ctx context.Context, req dto.BookCategoryRequest) (*entities.BookCategory, error) {
+func (s *categoryService) Create(ctx context.Context, req dto.CategoryRequest) (*entities.BookCategory, error) {
 	exists, err := s.categoryRepo.ExistsByName(req.Name, nil)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (s *bookCategoryService) Create(ctx context.Context, req dto.BookCategoryRe
 	return s.categoryRepo.FindByID(category.ID)
 }
 
-func (s *bookCategoryService) GetByID(ctx context.Context, id uint) (*entities.BookCategory, error) {
+func (s *categoryService) GetByID(ctx context.Context, id uint) (*entities.BookCategory, error) {
 	category, err := s.categoryRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -58,7 +58,7 @@ func (s *bookCategoryService) GetByID(ctx context.Context, id uint) (*entities.B
 	return category, nil
 }
 
-func (s *bookCategoryService) GetAll(ctx context.Context, page, limit int, search string) ([]entities.BookCategory, int64, error) {
+func (s *categoryService) GetAll(ctx context.Context, page, limit int, search string) ([]entities.BookCategory, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -71,7 +71,7 @@ func (s *bookCategoryService) GetAll(ctx context.Context, page, limit int, searc
 	return s.categoryRepo.FindAll(page, limit, search)
 }
 
-func (s *bookCategoryService) Update(ctx context.Context, id uint, req dto.BookCategoryRequest) (*entities.BookCategory, error) {
+func (s *categoryService) Update(ctx context.Context, id uint, req dto.CategoryRequest) (*entities.BookCategory, error) {
 	category, err := s.categoryRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -97,7 +97,7 @@ func (s *bookCategoryService) Update(ctx context.Context, id uint, req dto.BookC
 	return s.categoryRepo.FindByID(category.ID)
 }
 
-func (s *bookCategoryService) Delete(ctx context.Context, id uint) error {
+func (s *categoryService) Delete(ctx context.Context, id uint) error {
 	_, err := s.categoryRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

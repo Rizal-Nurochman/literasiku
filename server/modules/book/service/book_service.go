@@ -8,6 +8,7 @@ import (
 	"github.com/literasiKu/database/entities"
 	"github.com/literasiKu/modules/book/dto"
 	"github.com/literasiKu/modules/book/repository"
+	categoryrepository "github.com/literasiKu/modules/category/repository"
 	"gorm.io/gorm"
 )
 
@@ -21,10 +22,10 @@ type BookService interface {
 
 type bookService struct {
 	bookRepo     repository.BookRepository
-	categoryRepo repository.BookCategoryRepository
+	categoryRepo categoryrepository.CategoryRepository
 }
 
-func NewBookService(bookRepo repository.BookRepository, categoryRepo repository.BookCategoryRepository) BookService {
+func NewBookService(bookRepo repository.BookRepository, categoryRepo categoryrepository.CategoryRepository) BookService {
 	return &bookService{
 		bookRepo:     bookRepo,
 		categoryRepo: categoryRepo,

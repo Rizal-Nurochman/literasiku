@@ -146,31 +146,6 @@ func (h *bookHandler) Delete(ctx *gin.Context) {
 }
 
 func toBookResponse(book *entities.Book) dto.BookResponse {
-	var category *dto.BookCategoryResponse
-	if book.Category.ID != 0 {
-		category = &dto.BookCategoryResponse{
-			ID:        book.Category.ID,
-			Name:      book.Category.Name,
-			CreatedAt: book.Category.CreatedAt,
-			UpdatedAt: book.Category.UpdatedAt,
-		}
-	}
-
-	files := make([]dto.FileResponse, len(book.Files))
-	for i, f := range book.Files {
-		files[i] = dto.FileResponse{
-			ID:         f.ID,
-			BookID:     f.BookID,
-			FilePath:   f.FilePath,
-			FileName:   f.FileName,
-			FileSize:   f.FileSize,
-			UploadDate: f.UploadDate,
-			Status:     f.Status,
-			CreatedAt:  f.CreatedAt,
-			UpdatedAt:  f.UpdatedAt,
-		}
-	}
-
 	return dto.BookResponse{
 		ID:                book.ID,
 		Title:             book.Title,
@@ -179,12 +154,10 @@ func toBookResponse(book *entities.Book) dto.BookResponse {
 		YearPublished:     book.YearPublished,
 		ISBN:              book.ISBN,
 		CategoryID:        book.CategoryID,
-		Category:          category,
 		PhysicalStock:     book.PhysicalStock,
 		IsPhysicalAvailable: book.IsPhysicalAvailable,
 		IsDigitalAvailable:  book.IsDigitalAvailable,
 		Status:            book.Status,
-		Files:             files,
 		CreatedAt:         book.CreatedAt,
 		UpdatedAt:         book.UpdatedAt,
 	}

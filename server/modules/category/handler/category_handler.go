@@ -5,13 +5,13 @@ import (
 	"strconv"
 
 	"github.com/literasiKu/database/entities"
-	"github.com/literasiKu/modules/book/dto"
-	"github.com/literasiKu/modules/book/service"
+	"github.com/literasiKu/modules/category/dto"
+	"github.com/literasiKu/modules/category/service"
 	"github.com/literasiKu/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
-type BookCategoryHandler interface {
+type CategoryHandler interface {
 	Create(ctx *gin.Context)
 	GetByID(ctx *gin.Context)
 	GetAll(ctx *gin.Context)
@@ -19,16 +19,16 @@ type BookCategoryHandler interface {
 	Delete(ctx *gin.Context)
 }
 
-type bookCategoryHandler struct {
-	categoryService service.BookCategoryService
+type categoryHandler struct {
+	categoryService service.CategoryService
 }
 
-func NewBookCategoryHandler(categoryService service.BookCategoryService) BookCategoryHandler {
-	return &bookCategoryHandler{categoryService: categoryService}
+func NewCategoryHandler(categoryService service.CategoryService) CategoryHandler {
+	return &categoryHandler{categoryService: categoryService}
 }
 
-func (h *bookCategoryHandler) Create(ctx *gin.Context) {
-	var req dto.BookCategoryRequest
+func (h *categoryHandler) Create(ctx *gin.Context) {
+	var req dto.CategoryRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		res := utils.BuildResponseFailed("Failed to parse request", err.Error(), nil)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
@@ -46,7 +46,7 @@ func (h *bookCategoryHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, res)
 }
 
-func (h *bookCategoryHandler) GetByID(ctx *gin.Context) {
+func (h *categoryHandler) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		res := utils.BuildResponseFailed("Invalid category ID", err.Error(), nil)
@@ -65,7 +65,7 @@ func (h *bookCategoryHandler) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (h *bookCategoryHandler) GetAll(ctx *gin.Context) {
+func (h *categoryHandler) GetAll(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 	search := ctx.Query("search")
@@ -90,7 +90,7 @@ func (h *bookCategoryHandler) GetAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (h *bookCategoryHandler) Update(ctx *gin.Context) {
+func (h *categoryHandler) Update(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		res := utils.BuildResponseFailed("Invalid category ID", err.Error(), nil)
@@ -98,7 +98,7 @@ func (h *bookCategoryHandler) Update(ctx *gin.Context) {
 		return
 	}
 
-	var req dto.BookCategoryRequest
+	var req dto.CategoryRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		res := utils.BuildResponseFailed("Failed to parse request", err.Error(), nil)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
@@ -116,7 +116,7 @@ func (h *bookCategoryHandler) Update(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (h *bookCategoryHandler) Delete(ctx *gin.Context) {
+func (h *categoryHandler) Delete(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		res := utils.BuildResponseFailed("Invalid category ID", err.Error(), nil)
@@ -134,8 +134,8 @@ func (h *bookCategoryHandler) Delete(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func toCategoryResponse(category *entities.BookCategory) dto.BookCategoryResponse {
-	return dto.BookCategoryResponse{
+func toCategoryResponse(category *entities.BookCategory) dto.CategoryResponse {
+	return dto.CategoryResponse{
 		ID:        category.ID,
 		Name:      category.Name,
 		CreatedAt: category.CreatedAt,
@@ -143,8 +143,8 @@ func toCategoryResponse(category *entities.BookCategory) dto.BookCategoryRespons
 	}
 }
 
-func toCategoryResponses(categories []entities.BookCategory) []dto.BookCategoryResponse {
-	responses := make([]dto.BookCategoryResponse, len(categories))
+func toCategoryResponses(categories []entities.BookCategory) []dto.CategoryResponse {
+	responses := make([]dto.CategoryResponse, len(categories))
 	for i, category := range categories {
 		responses[i] = toCategoryResponse(&category)
 	}

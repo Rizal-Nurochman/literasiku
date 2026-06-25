@@ -6,6 +6,8 @@ import (
 	"github.com/literasiKu/middlewares"
 	authhandler "github.com/literasiKu/modules/auth/handler"
 	bookhandler "github.com/literasiKu/modules/book/handler"
+	categoryhandler "github.com/literasiKu/modules/category/handler"
+	filehandler "github.com/literasiKu/modules/file/handler"
 	"github.com/literasiKu/modules/auth/service"
 	healthhandler "github.com/literasiKu/modules/health/handler"
 	"github.com/gin-gonic/gin"
@@ -14,8 +16,8 @@ import (
 type Deps struct {
 	AuthHandler     authhandler.AuthHandler
 	BookHandler     bookhandler.BookHandler
-	CategoryHandler bookhandler.BookCategoryHandler
-	FileHandler     bookhandler.FileHandler
+	CategoryHandler categoryhandler.CategoryHandler
+	FileHandler     filehandler.FileHandler
 	JWTService      service.JWTService
 }
 
