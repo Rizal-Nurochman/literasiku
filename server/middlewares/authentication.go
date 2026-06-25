@@ -6,7 +6,7 @@ import (
 
 	"github.com/literasiKu/modules/auth/dto"
 	"github.com/literasiKu/modules/auth/service"
-	"github.com/literasiKu/utils"
+	"github.com/literasiKu/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 

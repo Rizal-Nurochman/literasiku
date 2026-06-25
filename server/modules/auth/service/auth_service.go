@@ -8,7 +8,7 @@ import (
 	"github.com/literasiKu/database/entities"
 	"github.com/literasiKu/modules/auth/dto"
 	"github.com/literasiKu/modules/auth/repository"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/literasiKu/pkg/helpers"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +39,7 @@ func (s *authService) Register(ctx context.Context, req dto.RegisterRequest) (dt
 		return dto.TokenResponse{}, dto.ErrEmailAlreadyExists
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashedPassword, err := helpers.HashPassword(req.Password)
 	if err != nil {
 		return dto.TokenResponse{}, fmt.Errorf("hash password: %w", err)
 	}
@@ -78,7 +78,7 @@ func (s *authService) Login(ctx context.Context, req dto.LoginRequest) (dto.Toke
 		return dto.TokenResponse{}, fmt.Errorf("find user: %w", err)
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+	if ok, err := helpers.CheckPassword(user.PasswordHash, []byte(req.Password)); err != nil || !ok {
 		return dto.TokenResponse{}, dto.ErrInvalidCredentials
 	}
 
