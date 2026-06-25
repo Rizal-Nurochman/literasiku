@@ -33,10 +33,10 @@ var (
 )
 
 type RegisterRequest struct {
-	Username    string `json:"username" binding:"required,min=3,max=50"`
-	Password    string `json:"password" binding:"required,min=8,max=72"`
-	NamaLengkap string `json:"nama_lengkap" binding:"required,min=1,max=100"`
-	Email       string `json:"email" binding:"required,email,max=100"`
+	Username  string `json:"username" binding:"required,min=3,max=50"`
+	Password  string `json:"password" binding:"required,min=8,max=72"`
+	FullName  string `json:"full_name" binding:"required,min=1,max=100"`
+	Email     string `json:"email" binding:"required,email,max=100"`
 }
 
 type LoginRequest struct {
@@ -45,21 +45,21 @@ type LoginRequest struct {
 }
 
 type UserResponse struct {
-	IDUser        uint      `json:"id_user"`
-	Username      string    `json:"username"`
-	NamaLengkap   string    `json:"nama_lengkap"`
-	Email         string    `json:"email"`
-	Role          string    `json:"role"`
-	StatusAkun    string    `json:"status_akun"`
-	NoKeanggotaan string    `json:"no_keanggotaan,omitempty"`
-	NoIdentitas   string    `json:"no_identitas,omitempty"`
-	Alamat        string    `json:"alamat,omitempty"`
-	NoTelepon     string    `json:"no_telepon,omitempty"`
-	CreatedAt     time.Time `json:"created_at"`
+	ID              uint      `json:"id"`
+	Username        string    `json:"username"`
+	FullName        string    `json:"full_name"`
+	Email           string    `json:"email"`
+	Role            string    `json:"role"`
+	Status          string    `json:"status"`
+	MembershipNumber string    `json:"membership_number,omitempty"`
+	IdentityNumber   string    `json:"identity_number,omitempty"`
+	Address         string    `json:"address,omitempty"`
+	PhoneNumber     string    `json:"phone_number,omitempty"`
+	CreatedAt       time.Time `json:"created_at"`
 }
 
 type TokenResponse struct {
 	AccessToken string       `json:"access_token"`
-	TokenType   string       `json:"token_type"`	
+	TokenType   string       `json:"token_type"`
 	User        UserResponse `json:"user"`
 }

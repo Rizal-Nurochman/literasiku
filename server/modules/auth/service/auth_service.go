@@ -48,16 +48,16 @@ func (s *authService) Register(ctx context.Context, req dto.RegisterRequest) (dt
 		Role:         "USER",
 		Username:     req.Username,
 		PasswordHash: string(hashedPassword),
-		NamaLengkap:  req.NamaLengkap,
+		FullName:     req.FullName,
 		Email:        req.Email,
-		StatusAkun:   "AKTIF",
+		Status:       "ACTIVE",
 	}
 
 	if err := s.authRepo.Create(user); err != nil {
 		return dto.TokenResponse{}, fmt.Errorf("create user: %w", err)
 	}
 
-	token, err := s.jwtService.GenerateToken(user.IDUser, user.Role)
+	token, err := s.jwtService.GenerateToken(user.ID, user.Role)
 	if err != nil {
 		return dto.TokenResponse{}, fmt.Errorf("generate token: %w", err)
 	}
@@ -82,14 +82,14 @@ func (s *authService) Login(ctx context.Context, req dto.LoginRequest) (dto.Toke
 		return dto.TokenResponse{}, dto.ErrInvalidCredentials
 	}
 
-	switch user.StatusAkun {
-	case "BLOKIR":
+	switch user.Status {
+	case "BLOCKED":
 		return dto.TokenResponse{}, dto.ErrUserBlocked
-	case "NONAKTIF":
+	case "INACTIVE":
 		return dto.TokenResponse{}, dto.ErrUserInactive
 	}
 
-	token, err := s.jwtService.GenerateToken(user.IDUser, user.Role)
+	token, err := s.jwtService.GenerateToken(user.ID, user.Role)
 	if err != nil {
 		return dto.TokenResponse{}, fmt.Errorf("generate token: %w", err)
 	}
@@ -114,16 +114,16 @@ func (s *authService) Logout(ctx context.Context, userID uint) error {
 
 func toUserResponse(u *entities.User) dto.UserResponse {
 	return dto.UserResponse{
-		IDUser:        u.IDUser,
+		ID:            u.ID,
 		Username:      u.Username,
-		NamaLengkap:   u.NamaLengkap,
+		FullName:      u.FullName,
 		Email:         u.Email,
 		Role:          u.Role,
-		StatusAkun:    u.StatusAkun,
-		NoKeanggotaan: u.NoKeanggotaan,
-		NoIdentitas:   u.NoIdentitas,
-		Alamat:        u.Alamat,
-		NoTelepon:     u.NoTelepon,
-		CreatedAt:     u.CreatedAt,
+		Status:        u.Status,
+		MembershipNumber: u.MembershipNumber,
+		IdentityNumber:   u.IdentityNumber,
+		Address:          u.Address,
+		PhoneNumber:      u.PhoneNumber,
+		CreatedAt:        u.CreatedAt,
 	}
 }

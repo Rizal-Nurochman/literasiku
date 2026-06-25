@@ -43,7 +43,7 @@ func (r *authRepository) FindByEmail(email string) (*entities.User, error) {
 
 func (r *authRepository) FindByID(id uint) (*entities.User, error) {
 	var user entities.User
-	if err := r.db.Where("id_user = ?", id).First(&user).Error; err != nil {
+	if err := r.db.Where("id = ?", id).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, gorm.ErrRecordNotFound
 		}
