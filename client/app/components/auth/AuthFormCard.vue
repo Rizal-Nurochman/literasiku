@@ -37,7 +37,14 @@ const fields = computed(() => {
 
   return [
     {
-      name: 'name',
+      name: 'username',
+      type: 'text',
+      label: 'Username account',
+      placeholder: 'Nama account',
+      required: true
+    },
+    {
+      name: 'fullName',
       type: 'text',
       label: 'Nama lengkap',
       placeholder: 'Nama anggota',

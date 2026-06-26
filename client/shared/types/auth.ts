@@ -1,15 +1,15 @@
 export interface AuthUser {
-  id: string
-  name: string
+  id: number
+  username: string
+  full_name: string
   email: string
-  role: 'anggota' | 'admin'
+  role: 'USER' | 'ADMIN'
+  status: 'ACTIVE' | 'INACTIVE'
+  created_at: string
 }
 
 export interface AuthSession {
-  token: string
+  access_token: string
+  token_type: 'Bearer'
   user: AuthUser
-}
-
-export interface AuthRegister{
-  
 }
