@@ -20,7 +20,20 @@ const preferHashUntil = ref(0)
 const observedSectionIds = ['beranda', 'katalog', 'fitur', 'cara-kerja']
 
 const scrolled = computed(() => y.value > 8)
-const initials = computed(() => user.value?.name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase() ?? 'AL')
+const initials = computed(() => {
+  if (!user.value?.full_name) return 'AL'
+  
+  return user.value.full_name
+    .split(' ')
+    .map(part => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
+})
+
+watchEffect(() => {
+  console.log('Data user saat ini:', user.value)
+})
 
 const getSectionFromPath = (path: string) => {
   if (!path.includes('#')) {
@@ -64,12 +77,12 @@ const dropdownItems = computed(() => [
     {
       label: 'Profil',
       icon: 'i-lucide-user',
-      to: '/profil'
+      to: '/dashboard/profile'
     },
     {
       label: 'Riwayat Peminjaman',
       icon: 'i-lucide-history',
-      to: '/riwayat'
+      to: '/dashboard/riwayat'
     }
   ],
   [
@@ -318,7 +331,7 @@ useEventListener(
         >
           <UAvatar
             :text="initials"
-            :alt="user?.name"
+            :alt="user?.full_name"
             size="sm"
           />
         </UButton>
@@ -365,12 +378,12 @@ useEventListener(
           <div class="flex items-center gap-3">
             <UAvatar
               :text="initials"
-              :alt="user?.name"
+              :alt="user?.full_name"
             />
 
             <div>
               <p class="text-sm font-medium text-highlighted">
-                {{ user?.name }}
+                {{ user?.full_name }}
               </p>
 
               <p class="text-xs text-muted">

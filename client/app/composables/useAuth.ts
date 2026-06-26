@@ -12,23 +12,28 @@ export const useAuth = () => {
   const authModalOpen = useState('auth-modal-open', () => false)
   const authModalMode = useState<'login' | 'register'>('auth-modal-mode', () => 'login')
 
+  const getHeaders = () => ({
+    'Authorization': session.value ? `Bearer ${session.value}` : ''
+  })
+
   const authQuery = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: () => $fetch<AuthUser>('/api/auth/me', {
-      headers: import.meta.server ? useRequestHeaders(['cookie']) : undefined
+      headers: getHeaders()
     }),
     enabled: computed(() => Boolean(session.value))
   })
 
-  const setSession = async (payload: AuthSession, message: string) => {
-    session.value = payload.token
-    await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+  const setSession = (payload: AuthSession, message: string) => {
+    session.value = payload.access_token
+    
+    if (payload.user) {
+      localStorage.setItem('literasiku_user', JSON.stringify(payload.user))
+      queryClient.setQueryData(['auth', 'me'], payload.user)
+    }
+    
     authModalOpen.value = false
-    toast.add({
-      title: message,
-      color: 'success',
-      icon: 'i-lucide-circle-check'
-    })
+    toast.add({ title: message, color: 'success', icon: 'i-lucide-circle-check' })
   }
 
   const loginMutation = useMutation({
@@ -36,7 +41,7 @@ export const useAuth = () => {
       method: 'POST',
       body: input
     }),
-    onSuccess: payload => setSession(payload, 'Berhasil masuk, selamat datang kembali')
+    onSuccess: payload => setSession(payload, 'Berhasil masuk')
   })
 
   const registerMutation = useMutation({
@@ -49,7 +54,8 @@ export const useAuth = () => {
 
   const logoutMutation = useMutation({
     mutationFn: () => $fetch('/api/auth/logout', {
-      method: 'POST'
+      method: 'POST',
+      headers: getHeaders()
     }),
     onSuccess: async () => {
       session.value = null
@@ -57,7 +63,7 @@ export const useAuth = () => {
       await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
       toast.add({
         title: 'Anda sudah keluar',
-        color: 'neutral',
+        color: 'error',
         icon: 'i-lucide-log-out'
       })
     }

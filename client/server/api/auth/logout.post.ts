@@ -1,7 +1,24 @@
-export default defineEventHandler(async (): Promise<{ success: boolean }> => {
-  await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 300))
+import { apiCall } from '~~/server/utils/apiCall'
 
-  return {
-    success: true
+export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig(event)
+  const token = getCookie(event, 'literasiku_session')
+
+  if (token) {
+    await apiCall(
+      $fetch(`${config.goApiBaseUrl}/api/v1/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+    )
   }
+
+  deleteCookie(event, 'literasiku_session', { 
+    sameSite: 'lax', 
+    path: '/' 
+  })
+
+  return { success: true }
 })

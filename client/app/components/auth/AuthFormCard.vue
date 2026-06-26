@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { loginSchema, registerSchema } from '#shared/schemas/auth.schema'
-import type { LoginInput, RegisterInput } from '#shared/schemas/auth.schema'
+import type { LoginInput, RegisterInput, RegisterFormInput } from '#shared/schemas/auth.schema'
 
 const props = defineProps<{
   mode: 'login' | 'register'
@@ -37,10 +37,17 @@ const fields = computed(() => {
 
   return [
     {
-      name: 'name',
+      name: 'full_name',
       type: 'text',
       label: 'Nama lengkap',
-      placeholder: 'Nama anggota',
+      placeholder: 'Nama lengkap Anda',
+      required: true
+    },
+    {
+      name: 'username',
+      type: 'text',
+      label: 'Username',
+      placeholder: 'username_anda',
       required: true
     },
     ...common,
@@ -109,11 +116,11 @@ const prompt = computed(() =>
   isLogin.value ? 'Belum punya akun?' : 'Sudah punya akun?'
 )
 
-const handleSubmit = async (event: { data: LoginInput | RegisterInput }) => {
+const handleSubmit = async (event: { data: LoginInput | RegisterFormInput }) => {
   if (isLogin.value) {
     await loginMutation.mutateAsync(event.data as LoginInput)
   } else {
-    await registerMutation.mutateAsync(event.data as RegisterInput)
+    await registerMutation.mutateAsync(event.data as RegisterFormInput)
   }
 
   await navigateTo('/')
