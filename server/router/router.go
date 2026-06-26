@@ -49,44 +49,61 @@ func New(deps Deps) *gin.Engine {
 
 		books := api.Group("/books")
 		{
+			// public
 			books.GET("", deps.BookHandler.GetAll)
 			books.GET("/:id", deps.BookHandler.GetByID)
 
-			books.Use(middlewares.Authenticate(deps.JWTService))
-			books.POST("", deps.BookHandler.Create)
-			books.PATCH("/:id", deps.BookHandler.Update)
-			books.DELETE("/:id", deps.BookHandler.Delete)
+			// admin only
+			adminBooks := books.Group("")
+			adminBooks.Use(middlewares.Authenticate(deps.JWTService), middlewares.AdminOnly())
+			adminBooks.POST("", deps.BookHandler.Create)
+			adminBooks.PATCH("/:id", deps.BookHandler.Update)
+			adminBooks.DELETE("/:id", deps.BookHandler.Delete)
 		}
 
 		categories := api.Group("/categories")
 		{
+			// public
 			categories.GET("", deps.CategoryHandler.GetAll)
 			categories.GET("/:id", deps.CategoryHandler.GetByID)
 
-			categories.Use(middlewares.Authenticate(deps.JWTService))
-			categories.POST("", deps.CategoryHandler.Create)
-			categories.PATCH("/:id", deps.CategoryHandler.Update)
-			categories.DELETE("/:id", deps.CategoryHandler.Delete)
+			// admin only
+			adminCategories := categories.Group("")
+			adminCategories.Use(middlewares.Authenticate(deps.JWTService), middlewares.AdminOnly())
+			adminCategories.POST("", deps.CategoryHandler.Create)
+			adminCategories.PATCH("/:id", deps.CategoryHandler.Update)
+			adminCategories.DELETE("/:id", deps.CategoryHandler.Delete)
 		}
 
 		files := api.Group("/files")
+		files.Use(middlewares.Authenticate(deps.JWTService))
 		{
+			// auth only
 			files.GET("/book/:book_id", deps.FileHandler.GetByBookID)
 			files.GET("/:id", deps.FileHandler.GetByID)
 
-			files.Use(middlewares.Authenticate(deps.JWTService))
-			files.POST("", deps.FileHandler.Create)
-			files.PATCH("/:id", deps.FileHandler.Update)
-			files.DELETE("/:id", deps.FileHandler.Delete)
+			// admin only
+			adminFiles := files.Group("")
+			adminFiles.Use(middlewares.AdminOnly())
+			adminFiles.POST("", deps.FileHandler.Create)
+			adminFiles.PATCH("/:id", deps.FileHandler.Update)
+			adminFiles.DELETE("/:id", deps.FileHandler.Delete)
 		}
 
 		users := api.Group("/users")
 		users.Use(middlewares.Authenticate(deps.JWTService))
 		{
-			users.GET("", deps.UserHandler.GetAll)
-			users.GET("/:id", deps.UserHandler.GetByID)
-			users.PATCH("/:id", deps.UserHandler.Update)
-			users.DELETE("/:id", deps.UserHandler.Delete)
+			// auth only (own profile)
+			users.GET("/me", deps.UserHandler.Me)
+			users.PATCH("/me", deps.UserHandler.UpdateMe)
+
+			// admin only
+			adminUsers := users.Group("")
+			adminUsers.Use(middlewares.AdminOnly())
+			adminUsers.GET("", deps.UserHandler.GetAll)
+			adminUsers.GET("/:id", deps.UserHandler.GetByID)
+			adminUsers.PATCH("/:id", deps.UserHandler.Update)
+			adminUsers.DELETE("/:id", deps.UserHandler.Delete)
 		}
 	}
 

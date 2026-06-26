@@ -15,6 +15,8 @@ type UserHandler interface {
 	GetByID(ctx *gin.Context)
 	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
+	Me(ctx *gin.Context)
+	UpdateMe(ctx *gin.Context)
 }
 
 type userHandler struct {
@@ -113,5 +115,42 @@ func (h *userHandler) Delete(ctx *gin.Context) {
 	}
 
 	res := utils.BuildResponseSuccess("User deleted successfully", nil)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (h *userHandler) Me(ctx *gin.Context) {
+	userID := ctx.GetUint("user_id")
+
+	user, err := h.userService.GetByID(ctx.Request.Context(), userID)
+	if err != nil {
+		res := utils.BuildResponseFailed("Failed to get profile", err.Error(), nil)
+		ctx.JSON(http.StatusNotFound, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess("Profile retrieved successfully", user)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (h *userHandler) UpdateMe(ctx *gin.Context) {
+	userID := ctx.GetUint("user_id")
+
+	var req dto.UpdateUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		res := utils.BuildResponseFailed("Failed to parse request", err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
+		return
+	}
+	
+	req.Status = ""
+
+	user, err := h.userService.Update(ctx.Request.Context(), userID, req)
+	if err != nil {
+		res := utils.BuildResponseFailed("Failed to update profile", err.Error(), nil)
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := utils.BuildResponseSuccess("Profile updated successfully", user)
 	ctx.JSON(http.StatusOK, res)
 }
