@@ -17,6 +17,9 @@ import (
 	filerepo "github.com/literasiKu/modules/file/repository"
 	fileservice "github.com/literasiKu/modules/file/service"
 	filehandler "github.com/literasiKu/modules/file/handler"
+	userrepo "github.com/literasiKu/modules/user/repository"
+	userservice "github.com/literasiKu/modules/user/service"
+	userhandler "github.com/literasiKu/modules/user/handler"
 	"github.com/literasiKu/router"
 )
 
@@ -46,20 +49,24 @@ func main() {
 	bookRepo := bookrepo.NewBookRepository(db)
 	categoryRepo := categoryrepo.NewCategoryRepository(db)
 	fileRepo := filerepo.NewFileRepository(db)
+	userRepo := userrepo.NewUserRepository(db)
 
 	bookSvc := bookservice.NewBookService(bookRepo, categoryRepo)
 	categorySvc := categoryservice.NewCategoryService(categoryRepo)
 	fileSvc := fileservice.NewFileService(fileRepo, bookRepo)
+	userSvc := userservice.NewUserService(userRepo)
 
 	bookHandler := bookhandler.NewBookHandler(bookSvc)
 	categoryHandler := categoryhandler.NewCategoryHandler(categorySvc)
 	fileHandler := filehandler.NewFileHandler(fileSvc)
+	userHandler := userhandler.NewUserHandler(userSvc)
 
 	app := router.New(router.Deps{
 		AuthHandler:     authHandler,
 		BookHandler:     bookHandler,
 		CategoryHandler: categoryHandler,
 		FileHandler:     fileHandler,
+		UserHandler:     userHandler,
 		JWTService:      jwtService,
 	})
 

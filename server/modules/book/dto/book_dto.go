@@ -12,7 +12,7 @@ type BookRequest struct {
 	PhysicalStock   int    `json:"physical_stock" binding:"min=0"`
 	IsPhysicalAvailable bool `json:"is_physical_available"`
 	IsDigitalAvailable  bool `json:"is_digital_available"`
-	Status          string `json:"status" binding:"oneof=ACTIVE INACTIVE DAMAGED LOST"`
+	Status          string `json:"status" binding:"omitempty,oneof=ACTIVE INACTIVE DAMAGED LOST"`
 }
 
 type BookResponse struct {

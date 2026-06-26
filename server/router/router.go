@@ -10,6 +10,7 @@ import (
 	filehandler "github.com/literasiKu/modules/file/handler"
 	"github.com/literasiKu/modules/auth/service"
 	healthhandler "github.com/literasiKu/modules/health/handler"
+	userhandler "github.com/literasiKu/modules/user/handler"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,6 +19,7 @@ type Deps struct {
 	BookHandler     bookhandler.BookHandler
 	CategoryHandler categoryhandler.CategoryHandler
 	FileHandler     filehandler.FileHandler
+	UserHandler     userhandler.UserHandler
 	JWTService      service.JWTService
 }
 
@@ -52,7 +54,7 @@ func New(deps Deps) *gin.Engine {
 
 			books.Use(middlewares.Authenticate(deps.JWTService))
 			books.POST("", deps.BookHandler.Create)
-			books.PUT("/:id", deps.BookHandler.Update)
+			books.PATCH("/:id", deps.BookHandler.Update)
 			books.DELETE("/:id", deps.BookHandler.Delete)
 		}
 
@@ -63,7 +65,7 @@ func New(deps Deps) *gin.Engine {
 
 			categories.Use(middlewares.Authenticate(deps.JWTService))
 			categories.POST("", deps.CategoryHandler.Create)
-			categories.PUT("/:id", deps.CategoryHandler.Update)
+			categories.PATCH("/:id", deps.CategoryHandler.Update)
 			categories.DELETE("/:id", deps.CategoryHandler.Delete)
 		}
 
@@ -74,8 +76,17 @@ func New(deps Deps) *gin.Engine {
 
 			files.Use(middlewares.Authenticate(deps.JWTService))
 			files.POST("", deps.FileHandler.Create)
-			files.PUT("/:id", deps.FileHandler.Update)
+			files.PATCH("/:id", deps.FileHandler.Update)
 			files.DELETE("/:id", deps.FileHandler.Delete)
+		}
+
+		users := api.Group("/users")
+		users.Use(middlewares.Authenticate(deps.JWTService))
+		{
+			users.GET("", deps.UserHandler.GetAll)
+			users.GET("/:id", deps.UserHandler.GetByID)
+			users.PATCH("/:id", deps.UserHandler.Update)
+			users.DELETE("/:id", deps.UserHandler.Delete)
 		}
 	}
 

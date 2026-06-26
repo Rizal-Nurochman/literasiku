@@ -3,7 +3,7 @@ package entities
 type User struct {
 	ID              uint   `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
 	Role            string `gorm:"column:role;type:varchar(10);not null;default:'USER';check:chk_users_role,role IN ('ADMIN','USER')" json:"role"`
-	Username        string `gorm:"column:username;type:varchar(50);not null;uniqueIndex" json:"username"`
+	Username        string `gorm:"column:username;type:varchar(50);not null" json:"username"`
 	PasswordHash    string `gorm:"column:password_hash;type:varchar(255);not null" json:"-"`
 	FullName        string `gorm:"column:full_name;type:varchar(100);not null" json:"full_name"`
 	Email           string `gorm:"column:email;type:varchar(100);not null;uniqueIndex" json:"email"`
