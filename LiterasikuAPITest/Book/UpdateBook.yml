@@ -4,7 +4,7 @@ info:
   seq: 9
 
 http:
-  method: PUT
+  method: PATCH
   url: "{{base_url}}/books/{{book_id}}"
   body:
     type: json

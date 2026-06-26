@@ -4,7 +4,7 @@ info:
   seq: 23
 
 http:
-  method: PUT
+  method: PATCH
   url: "{{base_url}}/files/{{file_id}}"
   body:
     type: json
