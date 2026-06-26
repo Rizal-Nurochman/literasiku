@@ -50,7 +50,7 @@ services:
     environment:
       PORT: 3000
       HOST: 0.0.0.0
-      NUXT_GO_API_BASE_URL: http://go-api:8080/api/v1
+      NUXT_GO_API_BASE_URL: http://go-api:8080
       NUXT_GO_INTERNAL_API_KEY: ${NUXT_GO_INTERNAL_API_KEY:-kunci_rahasia_internal}
     ports:
       - "3000:3000"

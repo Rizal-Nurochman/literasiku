@@ -1,28 +1,27 @@
 import { loginSchema } from '#shared/schemas/auth.schema'
 import type { AuthSession } from '#shared/types/auth'
-import { apiCall, throwError } from '~~/server/utils/apiCall'
+import { apiCall } from '#shared/utils/apiCall'
 
 export default defineEventHandler(async (event): Promise<AuthSession> => {
   const body = await readValidatedBody(event, loginSchema.parse)
   const config = useRuntimeConfig(event)
 
   const [error, res] = await apiCall(
-    $fetch<AuthSession>(`${config.goApiBaseUrl}/auth/login`, {
+    $fetch<AuthSession>(`${config.goApiBaseUrl}/api/v1/auth/login`, {
       method: 'POST',
-      body: {
-        'email':body.email,
-        'password':body.password
-      },
+      body: body,
       headers: {
         'Content-Type': 'application/json'
       }
     })
   )
 
-  console.log(res)
-
   if (error) {
-    throwError(error)
+    throw createError({
+      statusCode: error.response?.status || 500,
+      statusMessage: error.data?.message || error.message || 'Gagal terhubung ke backend utama',
+      data: error.data
+    })
   }
 
   return res!

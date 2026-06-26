@@ -51,7 +51,7 @@ type UserResponse struct {
 	Email           string    `json:"email"`
 	Role            string    `json:"role"`
 	Status          string    `json:"status"`
-	 MembershipNumber *string `json:"membership_number,omitempty"`
+	MembershipNumber string    `json:"membership_number,omitempty"`
 	IdentityNumber   string    `json:"identity_number,omitempty"`
 	Address         string    `json:"address,omitempty"`
 	PhoneNumber     string    `json:"phone_number,omitempty"`

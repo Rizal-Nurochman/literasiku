@@ -2,7 +2,7 @@ package repository
 
 import (
 	"errors"
-    "fmt"
+
 	"github.com/literasiKu/database/entities"
 	"gorm.io/gorm"
 )
@@ -24,10 +24,10 @@ func NewAuthRepository(db *gorm.DB) AuthRepository {
 }
 
 func (r *authRepository) Create(user *entities.User) error {
-	fmt.Printf("%+v\n", *user)
-	fmt.Printf("MembershipNumber: %#v\n", user.MembershipNumber)
-
-	return r.db.Create(user).Error
+	if err := r.db.Create(user).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (r *authRepository) FindByEmail(email string) (*entities.User, error) {

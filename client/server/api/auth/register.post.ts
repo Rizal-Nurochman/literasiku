@@ -1,6 +1,5 @@
 import { registerSchema } from '#shared/schemas/auth.schema'
 import type { AuthSession } from '#shared/types/auth'
-import { throwError } from '~~/server/utils/apiCall'
 
 export const apiCall = async <T>(promise: Promise<T>): Promise<[any, T | null]> => {
   try {
@@ -15,17 +14,10 @@ export default defineEventHandler(async (event): Promise<AuthSession> => {
   const body = await readValidatedBody(event, registerSchema.parse)
   const config = useRuntimeConfig(event)
 
-  const payload={
-    username:body.username,
-    password:body.password,
-    'full_name':body.fullName,
-    email:body.email
-  }
-
   const [error, res] = await apiCall(
-    $fetch<AuthSession>(`${config.goApiBaseUrl}/auth/register`, {
+    $fetch<AuthSession>(`${config.goApiBaseUrl}/api/v1/auth/register`, {
       method: 'POST',
-      body:payload,
+      body: body,
       headers: {
         'Authorization': `Bearer ${config.goInternalApiKey}`,
         'Content-Type': 'application/json'
@@ -34,7 +26,12 @@ export default defineEventHandler(async (event): Promise<AuthSession> => {
   )
 
   if (error) {
-    throwError(error)
+    console.log(error)
+    throw createError({
+      statusCode: error.response?.status || 500,
+      statusMessage: error.data?.message || error.message || 'Gagal terhubung ke backend utama',
+      data: error.data
+    })
   }
 
   return res!

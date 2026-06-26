@@ -21,7 +21,7 @@ export const useAuth = () => {
   })
 
   const setSession = async (payload: AuthSession, message: string) => {
-    session.value = payload.access_token
+    session.value = payload.token
     await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
     authModalOpen.value = false
     toast.add({
@@ -32,19 +32,19 @@ export const useAuth = () => {
   }
 
   const loginMutation = useMutation({
-    mutationFn: (input: LoginInput) => $fetch<ApiResponse<AuthSession>>('/api/auth/login', {
+    mutationFn: (input: LoginInput) => $fetch<AuthSession>('/api/auth/login', {
       method: 'POST',
       body: input
     }),
-    onSuccess: payload => setSession(payload.data, 'Berhasil masuk, selamat datang kembali')
+    onSuccess: payload => setSession(payload, 'Berhasil masuk, selamat datang kembali')
   })
 
   const registerMutation = useMutation({
-    mutationFn: (input: RegisterInput) => $fetch<ApiResponse<AuthSession>>('/api/auth/register', {
+    mutationFn: (input: RegisterInput) => $fetch<AuthSession>('/api/auth/register', {
       method: 'POST',
       body: input
     }),
-    onSuccess: payload => setSession(payload.data, 'Akun berhasil dibuat')
+    onSuccess: payload => setSession(payload, 'Akun berhasil dibuat')
   })
 
   const logoutMutation = useMutation({

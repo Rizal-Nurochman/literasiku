@@ -20,7 +20,7 @@ const preferHashUntil = ref(0)
 const observedSectionIds = ['beranda', 'katalog', 'fitur', 'cara-kerja']
 
 const scrolled = computed(() => y.value > 8)
-const initials = computed(() => user.value?.username.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase() ?? 'AL')
+const initials = computed(() => user.value?.name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase() ?? 'AL')
 
 const getSectionFromPath = (path: string) => {
   if (!path.includes('#')) {
@@ -64,7 +64,7 @@ const dropdownItems = computed(() => [
     {
       label: 'Profil',
       icon: 'i-lucide-user',
-      to: '/dashboard'
+      to: '/profil'
     },
     {
       label: 'Riwayat Peminjaman',
@@ -318,7 +318,7 @@ useEventListener(
         >
           <UAvatar
             :text="initials"
-            :alt="user?.username"
+            :alt="user?.name"
             size="sm"
           />
         </UButton>
@@ -365,12 +365,12 @@ useEventListener(
           <div class="flex items-center gap-3">
             <UAvatar
               :text="initials"
-              :alt="user?.username"
+              :alt="user?.name"
             />
 
             <div>
               <p class="text-sm font-medium text-highlighted">
-                {{ user?.full_name }}
+                {{ user?.name }}
               </p>
 
               <p class="text-xs text-muted">
