@@ -53,6 +53,8 @@ export default defineNuxtConfig({
     goInternalApiKey: process.env.NUXT_GO_INTERNAL_API_KEY,
   },
 
+  ssr: true,
+  
   routeRules: {
     '/': { prerender: false }
   },
