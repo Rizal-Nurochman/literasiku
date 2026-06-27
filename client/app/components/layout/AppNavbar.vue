@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useEventListener, useIntersectionObserver, useScroll } from '@vueuse/core'
 import ThemeModeToggle from '~/components/layout/ThemeModeToggle.vue'
-import { NAV_LINKS } from '~/constants/navigation'
+import { NAV_LINKS, NAV_USER } from '~/constants/navigation'
 
 const {
   user,
@@ -72,28 +72,7 @@ const navItems = computed(() => NAV_LINKS.map((item) => {
   }
 }))
 
-const dropdownItems = computed(() => [
-  [
-    {
-      label: 'Profil',
-      icon: 'i-lucide-user',
-      to: '/dashboard/profile'
-    },
-    {
-      label: 'Riwayat Peminjaman',
-      icon: 'i-lucide-history',
-      to: '/dashboard/riwayat'
-    }
-  ],
-  [
-    {
-      label: 'Keluar',
-      icon: 'i-lucide-log-out',
-      onSelect: () => logoutMutation.mutate()
-    }
-  ]
-])
-
+const dropdownItems = computed(() => NAV_USER(user, logoutMutation))
 const closeMobileMenu = () => {
   headerOpen.value = false
 }

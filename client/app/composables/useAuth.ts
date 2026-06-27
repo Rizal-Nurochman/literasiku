@@ -4,6 +4,7 @@ import type { LoginInput, RegisterInput } from '#shared/schemas/auth.schema'
 
 export const useAuth = () => {
   const queryClient = useQueryClient()
+  const router = useRouter()
   const toast = useToast()
   const session = useCookie<string | null>('literasiku_session', {
     sameSite: 'lax',
@@ -62,10 +63,12 @@ export const useAuth = () => {
       queryClient.setQueryData(['auth', 'me'], null)
       await queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
       toast.add({
-        title: 'Anda sudah keluar',
-        color: 'error',
+        title: 'Suksess logout',
+        color: 'info',
         icon: 'i-lucide-log-out'
       })
+
+      await router.replace('/auth/login')
     }
   })
 

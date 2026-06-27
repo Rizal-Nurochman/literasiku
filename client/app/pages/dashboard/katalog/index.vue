@@ -2,6 +2,10 @@
 import { usePreferredReducedMotion } from '@vueuse/core'
 import { BOOKS_PREVIEW, CATALOG_FILTERS } from '~/constants/catalog'
 
+definePageMeta({
+    layout:'dashboard'
+ })
+
 useSeoMeta({
   title: 'Katalog Buku - Literasiku',
   description: 'Cari koleksi buku fisik dan digital di Literasiku.'
@@ -54,6 +58,7 @@ const filteredBooks = computed(() => {
       title="Cari Koleksi Buku Literasiku"
       description="Temukan buku fisik dan digital, cek ketersediaan, lalu lanjutkan membaca atau mengajukan peminjaman."
       class="min-h-[calc(100vh-4rem)]"
+      :ui="{ root: 'pt-0', header: 'mb-4' }"
     >
       <template #headline>
         <UBadge
