@@ -1,0 +1,45 @@
+info:
+  name: Borrow Digital Book
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}/loans/digital"
+  body:
+    type: json
+    data: |-
+      {
+        "book_id": {{book_id}},
+        "due_days": 7
+      }
+  auth:
+    type: bearer
+    token: "{{login_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8080/api/v1
+    - name: login_token
+      value: ""
+    - name: book_id
+      value: 1
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+vars:
+  postResponse:
+    - name: digital_loan_id
+      value: res.body.data.id
+
+assertions:
+  - res.status: eq 201
+  - res.body.status: eq true
+  - res.body.message: contains "Digital book borrowed successfully"
+  - res.body.data.id: isNumber
+  - res.body.data.access_status: eq "ACTIVE"

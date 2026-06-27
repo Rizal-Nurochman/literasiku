@@ -27,6 +27,9 @@ import (
 	physicalloanrepo "github.com/literasiKu/modules/physical_loan/repository"
 	physicalloanservice "github.com/literasiKu/modules/physical_loan/service"
 	physicalloanhandler "github.com/literasiKu/modules/physical_loan/handler"
+	digitalloanrepo "github.com/literasiKu/modules/digital_loan/repository"
+	digitalloanservice "github.com/literasiKu/modules/digital_loan/service"
+	digitalloanhandler "github.com/literasiKu/modules/digital_loan/handler"
 	"github.com/literasiKu/router"
 )
 
@@ -63,18 +66,21 @@ func init() {
 	fileRepo := filerepo.NewFileRepository(db)
 	userRepo := userrepo.NewUserRepository(db)
 	physicalLoanRepo := physicalloanrepo.NewPhysicalLoanRepository(db)
+	digitalLoanRepo := digitalloanrepo.NewDigitalLoanRepository(db)
 
 	bookSvc := bookservice.NewBookService(bookRepo, categoryRepo)
 	categorySvc := categoryservice.NewCategoryService(categoryRepo)
 	fileSvc := fileservice.NewFileService(fileRepo, bookRepo)
 	userSvc := userservice.NewUserService(userRepo)
 	physicalLoanSvc := physicalloanservice.NewPhysicalLoanService(physicalLoanRepo, bookRepo)
+	digitalLoanSvc := digitalloanservice.NewDigitalLoanService(digitalLoanRepo, bookRepo, fileRepo)
 
 	bookHandler := bookhandler.NewBookHandler(bookSvc)
 	categoryHandler := categoryhandler.NewCategoryHandler(categorySvc)
 	fileHandler := filehandler.NewFileHandler(fileSvc)
 	userHandler := userhandler.NewUserHandler(userSvc)
 	physicalLoanHandler := physicalloanhandler.NewPhysicalLoanHandler(physicalLoanSvc)
+	digitalLoanHandler := digitalloanhandler.NewDigitalLoanHandler(digitalLoanSvc)
 
 	engine = router.New(router.Deps{
 		AuthHandler:         authHandler,
@@ -83,6 +89,7 @@ func init() {
 		FileHandler:         fileHandler,
 		UserHandler:         userHandler,
 		PhysicalLoanHandler: physicalLoanHandler,
+		DigitalLoanHandler:  digitalLoanHandler,
 		JWTService:          jwtService,
 	})
 }

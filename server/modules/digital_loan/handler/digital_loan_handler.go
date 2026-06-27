@@ -5,32 +5,32 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/literasiKu/modules/physical_loan/dto"
-	"github.com/literasiKu/modules/physical_loan/service"
+	"github.com/literasiKu/modules/digital_loan/dto"
+	"github.com/literasiKu/modules/digital_loan/service"
 	"github.com/literasiKu/pkg/utils"
 )
 
-type PhysicalLoanHandler interface {
+type DigitalLoanHandler interface {
 	Borrow(ctx *gin.Context)
-	Return(ctx *gin.Context)
+	Revoke(ctx *gin.Context)
 	GetAll(ctx *gin.Context)
 	GetByID(ctx *gin.Context)
 	GetMyLoans(ctx *gin.Context)
-	PayFine(ctx *gin.Context)
+	CheckAccess(ctx *gin.Context)
 }
 
-type physicalLoanHandler struct {
-	svc service.PhysicalLoanService
+type digitalLoanHandler struct {
+	svc service.DigitalLoanService
 }
 
-func NewPhysicalLoanHandler(svc service.PhysicalLoanService) PhysicalLoanHandler {
-	return &physicalLoanHandler{svc: svc}
+func NewDigitalLoanHandler(svc service.DigitalLoanService) DigitalLoanHandler {
+	return &digitalLoanHandler{svc: svc}
 }
 
-func (h *physicalLoanHandler) Borrow(ctx *gin.Context) {
+func (h *digitalLoanHandler) Borrow(ctx *gin.Context) {
 	userID := ctx.GetUint("user_id")
 
-	var req dto.CreateLoanRequest
+	var req dto.CreateDigitalLoanRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, utils.BuildResponseFailed("Failed to parse request", err.Error(), nil))
 		return
@@ -38,33 +38,30 @@ func (h *physicalLoanHandler) Borrow(ctx *gin.Context) {
 
 	loan, err := h.svc.Borrow(ctx.Request.Context(), userID, req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.BuildResponseFailed("Failed to borrow book", err.Error(), nil))
+		ctx.JSON(http.StatusBadRequest, utils.BuildResponseFailed("Failed to borrow digital book", err.Error(), nil))
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, utils.BuildResponseSuccess("Book borrowed successfully", loan))
+	ctx.JSON(http.StatusCreated, utils.BuildResponseSuccess("Digital book borrowed successfully", loan))
 }
 
-func (h *physicalLoanHandler) Return(ctx *gin.Context) {
+func (h *digitalLoanHandler) Revoke(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, utils.BuildResponseFailed("Invalid loan ID", err.Error(), nil))
 		return
 	}
 
-	var req dto.ReturnLoanRequest
-	_ = ctx.ShouldBindJSON(&req)
-
-	loan, err := h.svc.Return(ctx.Request.Context(), uint(id), req)
+	loan, err := h.svc.Revoke(ctx.Request.Context(), uint(id))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.BuildResponseFailed("Failed to return book", err.Error(), nil))
+		ctx.JSON(http.StatusBadRequest, utils.BuildResponseFailed("Failed to revoke access", err.Error(), nil))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, utils.BuildResponseSuccess("Book returned successfully", loan))
+	ctx.JSON(http.StatusOK, utils.BuildResponseSuccess("Access revoked successfully", loan))
 }
 
-func (h *physicalLoanHandler) GetAll(ctx *gin.Context) {
+func (h *digitalLoanHandler) GetAll(ctx *gin.Context) {
 	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
 	status := ctx.Query("status")
@@ -85,7 +82,7 @@ func (h *physicalLoanHandler) GetAll(ctx *gin.Context) {
 	}))
 }
 
-func (h *physicalLoanHandler) GetByID(ctx *gin.Context) {
+func (h *digitalLoanHandler) GetByID(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, utils.BuildResponseFailed("Invalid loan ID", err.Error(), nil))
@@ -101,7 +98,7 @@ func (h *physicalLoanHandler) GetByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, utils.BuildResponseSuccess("Loan retrieved successfully", loan))
 }
 
-func (h *physicalLoanHandler) GetMyLoans(ctx *gin.Context) {
+func (h *digitalLoanHandler) GetMyLoans(ctx *gin.Context) {
 	userID := ctx.GetUint("user_id")
 	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
@@ -122,18 +119,21 @@ func (h *physicalLoanHandler) GetMyLoans(ctx *gin.Context) {
 	}))
 }
 
-func (h *physicalLoanHandler) PayFine(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+func (h *digitalLoanHandler) CheckAccess(ctx *gin.Context) {
+	userID := ctx.GetUint("user_id")
+	bookIDStr := ctx.Param("book_id")
+
+	bookID, err := strconv.ParseUint(bookIDStr, 10, 32)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, utils.BuildResponseFailed("Invalid loan ID", err.Error(), nil))
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, utils.BuildResponseFailed("Invalid book ID", err.Error(), nil))
 		return
 	}
 
-	loan, err := h.svc.PayFine(ctx.Request.Context(), uint(id))
+	hasAccess, err := h.svc.CheckAccess(ctx.Request.Context(), userID, uint(bookID))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, utils.BuildResponseFailed("Failed to pay fine", err.Error(), nil))
+		ctx.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("Failed to check access", err.Error(), nil))
 		return
 	}
 
-	ctx.JSON(http.StatusOK, utils.BuildResponseSuccess("Fine paid successfully", loan))
+	ctx.JSON(http.StatusOK, utils.BuildResponseSuccess("Access checked successfully", gin.H{"has_access": hasAccess}))
 }

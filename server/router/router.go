@@ -12,6 +12,7 @@ import (
 	healthhandler "github.com/literasiKu/modules/health/handler"
 	userhandler "github.com/literasiKu/modules/user/handler"
 	physicalloanhandler "github.com/literasiKu/modules/physical_loan/handler"
+	digitalloanhandler "github.com/literasiKu/modules/digital_loan/handler"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +23,7 @@ type Deps struct {
 	FileHandler         filehandler.FileHandler
 	UserHandler         userhandler.UserHandler
 	PhysicalLoanHandler physicalloanhandler.PhysicalLoanHandler
+	DigitalLoanHandler  digitalloanhandler.DigitalLoanHandler
 	JWTService          service.JWTService
 }
 
@@ -122,6 +124,22 @@ func New(deps Deps) *gin.Engine {
 			adminLoans.GET("", deps.PhysicalLoanHandler.GetAll)
 			adminLoans.PATCH("/:id/return", deps.PhysicalLoanHandler.Return)
 			adminLoans.PATCH("/:id/pay-fine", deps.PhysicalLoanHandler.PayFine)
+		}
+
+		digitalLoans := api.Group("/loans/digital")
+		digitalLoans.Use(middlewares.Authenticate(deps.JWTService))
+		{
+			// auth only
+			digitalLoans.POST("", deps.DigitalLoanHandler.Borrow)
+			digitalLoans.GET("/my", deps.DigitalLoanHandler.GetMyLoans)
+			digitalLoans.GET("/:id", deps.DigitalLoanHandler.GetByID)
+			digitalLoans.GET("/access/:book_id", deps.DigitalLoanHandler.CheckAccess)
+
+			// admin only
+			adminDigitalLoans := digitalLoans.Group("")
+			adminDigitalLoans.Use(middlewares.AdminOnly())
+			adminDigitalLoans.GET("", deps.DigitalLoanHandler.GetAll)
+			adminDigitalLoans.PATCH("/:id/revoke", deps.DigitalLoanHandler.Revoke)
 		}
 	}
 
