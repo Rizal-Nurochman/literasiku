@@ -11,16 +11,18 @@ import (
 	"github.com/literasiKu/modules/auth/service"
 	healthhandler "github.com/literasiKu/modules/health/handler"
 	userhandler "github.com/literasiKu/modules/user/handler"
+	physicalloanhandler "github.com/literasiKu/modules/physical_loan/handler"
 	"github.com/gin-gonic/gin"
 )
 
 type Deps struct {
-	AuthHandler     authhandler.AuthHandler
-	BookHandler     bookhandler.BookHandler
-	CategoryHandler categoryhandler.CategoryHandler
-	FileHandler     filehandler.FileHandler
-	UserHandler     userhandler.UserHandler
-	JWTService      service.JWTService
+	AuthHandler         authhandler.AuthHandler
+	BookHandler         bookhandler.BookHandler
+	CategoryHandler     categoryhandler.CategoryHandler
+	FileHandler         filehandler.FileHandler
+	UserHandler         userhandler.UserHandler
+	PhysicalLoanHandler physicalloanhandler.PhysicalLoanHandler
+	JWTService          service.JWTService
 }
 
 func New(deps Deps) *gin.Engine {
@@ -104,6 +106,22 @@ func New(deps Deps) *gin.Engine {
 			adminUsers.GET("/:id", deps.UserHandler.GetByID)
 			adminUsers.PATCH("/:id", deps.UserHandler.Update)
 			adminUsers.DELETE("/:id", deps.UserHandler.Delete)
+		}
+
+		physicalLoans := api.Group("/loans/physical")
+		physicalLoans.Use(middlewares.Authenticate(deps.JWTService))
+		{
+			// auth only
+			physicalLoans.POST("", deps.PhysicalLoanHandler.Borrow)
+			physicalLoans.GET("/my", deps.PhysicalLoanHandler.GetMyLoans)
+			physicalLoans.GET("/:id", deps.PhysicalLoanHandler.GetByID)
+
+			// admin only
+			adminLoans := physicalLoans.Group("")
+			adminLoans.Use(middlewares.AdminOnly())
+			adminLoans.GET("", deps.PhysicalLoanHandler.GetAll)
+			adminLoans.PATCH("/:id/return", deps.PhysicalLoanHandler.Return)
+			adminLoans.PATCH("/:id/pay-fine", deps.PhysicalLoanHandler.PayFine)
 		}
 	}
 

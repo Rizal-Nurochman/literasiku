@@ -24,6 +24,9 @@ import (
 	userrepo "github.com/literasiKu/modules/user/repository"
 	userservice "github.com/literasiKu/modules/user/service"
 	userhandler "github.com/literasiKu/modules/user/handler"
+	physicalloanrepo "github.com/literasiKu/modules/physical_loan/repository"
+	physicalloanservice "github.com/literasiKu/modules/physical_loan/service"
+	physicalloanhandler "github.com/literasiKu/modules/physical_loan/handler"
 	"github.com/literasiKu/router"
 )
 
@@ -59,24 +62,28 @@ func init() {
 	categoryRepo := categoryrepo.NewCategoryRepository(db)
 	fileRepo := filerepo.NewFileRepository(db)
 	userRepo := userrepo.NewUserRepository(db)
+	physicalLoanRepo := physicalloanrepo.NewPhysicalLoanRepository(db)
 
 	bookSvc := bookservice.NewBookService(bookRepo, categoryRepo)
 	categorySvc := categoryservice.NewCategoryService(categoryRepo)
 	fileSvc := fileservice.NewFileService(fileRepo, bookRepo)
 	userSvc := userservice.NewUserService(userRepo)
+	physicalLoanSvc := physicalloanservice.NewPhysicalLoanService(physicalLoanRepo, bookRepo)
 
 	bookHandler := bookhandler.NewBookHandler(bookSvc)
 	categoryHandler := categoryhandler.NewCategoryHandler(categorySvc)
 	fileHandler := filehandler.NewFileHandler(fileSvc)
 	userHandler := userhandler.NewUserHandler(userSvc)
+	physicalLoanHandler := physicalloanhandler.NewPhysicalLoanHandler(physicalLoanSvc)
 
 	engine = router.New(router.Deps{
-		AuthHandler:     authHandler,
-		BookHandler:     bookHandler,
-		CategoryHandler: categoryHandler,
-		FileHandler:     fileHandler,
-		UserHandler:     userHandler,
-		JWTService:      jwtService,
+		AuthHandler:         authHandler,
+		BookHandler:         bookHandler,
+		CategoryHandler:     categoryHandler,
+		FileHandler:         fileHandler,
+		UserHandler:         userHandler,
+		PhysicalLoanHandler: physicalLoanHandler,
+		JWTService:          jwtService,
 	})
 }
 

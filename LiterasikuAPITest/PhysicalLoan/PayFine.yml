@@ -1,0 +1,32 @@
+info:
+  name: Pay Fine
+  type: http
+  seq: 6
+
+http:
+  method: PATCH
+  url: "{{base_url}}/loans/physical/{{loan_id}}/pay-fine"
+  auth:
+    type: bearer
+    token: "{{login_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8080/api/v1
+    - name: login_token
+      value: ""
+    - name: loan_id
+      value: 1
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+assertions:
+  - res.status: eq 200
+  - res.body.status: eq true
+  - res.body.message: contains "Fine paid successfully"
+  - res.body.data.fine_status: eq "PAID"

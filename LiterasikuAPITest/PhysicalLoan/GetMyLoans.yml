@@ -1,0 +1,38 @@
+info:
+  name: Get My Loans
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{base_url}}/loans/physical/my"
+  query:
+    - name: page
+      value: "1"
+      disabled: false
+    - name: limit
+      value: "10"
+      disabled: false
+  auth:
+    type: bearer
+    token: "{{login_token}}"
+
+runtime:
+  variables:
+    - name: base_url
+      value: http://localhost:8080/api/v1
+    - name: login_token
+      value: ""
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+assertions:
+  - res.status: eq 200
+  - res.body.status: eq true
+  - res.body.message: contains "Loans retrieved successfully"
+  - res.body.data.data: isArray
+  - res.body.data.total: isNumber
