@@ -1,0 +1,30 @@
+[
+  {
+    "book_isbn": "9786020381001",
+    "file_name": "pemrograman-go-dari-dasar.pdf",
+    "file_path": "/storage/pdf/pemrograman-go-dari-dasar.pdf",
+    "file_size": 5242880,
+    "status": "ACTIVE"
+  },
+  {
+    "book_isbn": "9786020381003",
+    "file_name": "psikologi-belajar-efektif.pdf",
+    "file_path": "/storage/pdf/psikologi-belajar-efektif.pdf",
+    "file_size": 4194304,
+    "status": "ACTIVE"
+  },
+  {
+    "book_isbn": "9789793062792",
+    "file_name": "laskar-pelangi.pdf",
+    "file_path": "/storage/pdf/laskar-pelangi.pdf",
+    "file_size": 6291456,
+    "status": "ACTIVE"
+  },
+  {
+    "book_isbn": "9786020381007",
+    "file_name": "metodologi-penelitian-kualitatif.pdf",
+    "file_path": "/storage/pdf/metodologi-penelitian-kualitatif.pdf",
+    "file_size": 7340032,
+    "status": "ACTIVE"
+  }
+]

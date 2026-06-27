@@ -1,0 +1,32 @@
+[
+  {
+    "role": "ADMIN",
+    "username": "admin",
+    "full_name": "Administrator",
+    "email": "admin@literasiku.test",
+    "password": "rahasia123",
+    "membership_number": "ADM-0001",
+    "phone_number": "08123456789",
+    "status": "ACTIVE"
+  },
+  {
+    "role": "USER",
+    "username": "budi_santoso",
+    "full_name": "Budi Santoso",
+    "email": "budi@literasiku.test",
+    "password": "rahasia123",
+    "membership_number": "USR-0001",
+    "phone_number": "08234567890",
+    "status": "ACTIVE"
+  },
+  {
+    "role": "USER",
+    "username": "siti_rahayu",
+    "full_name": "Siti Rahayu",
+    "email": "siti@literasiku.test",
+    "password": "rahasia123",
+    "membership_number": "USR-0002",
+    "phone_number": "08345678901",
+    "status": "ACTIVE"
+  }
+]

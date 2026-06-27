@@ -1,0 +1,98 @@
+[
+  {
+    "title": "Pemrograman Go dari Dasar",
+    "author": "Eko Kurniawan",
+    "publisher": "Elex Media",
+    "year_published": 2022,
+    "isbn": "9786020381001",
+    "physical_stock": 10,
+    "is_physical_available": true,
+    "is_digital_available": true,
+    "status": "ACTIVE",
+    "category_name": "Teknologi"
+  },
+  {
+    "title": "Arsitektur Microservices",
+    "author": "Sam Newman",
+    "publisher": "O'Reilly",
+    "year_published": 2021,
+    "isbn": "9786020381002",
+    "physical_stock": 5,
+    "is_physical_available": true,
+    "is_digital_available": false,
+    "status": "ACTIVE",
+    "category_name": "Teknologi"
+  },
+  {
+    "title": "Psikologi Belajar Efektif",
+    "author": "Siti Aisyah",
+    "publisher": "Gramedia",
+    "year_published": 2020,
+    "isbn": "9786020381003",
+    "physical_stock": 8,
+    "is_physical_available": true,
+    "is_digital_available": true,
+    "status": "ACTIVE",
+    "category_name": "Pendidikan"
+  },
+  {
+    "title": "Kurikulum Berbasis Kompetensi",
+    "author": "Bambang Wicaksono",
+    "publisher": "Rosda",
+    "year_published": 2019,
+    "isbn": "9786020381004",
+    "physical_stock": 6,
+    "is_physical_available": true,
+    "is_digital_available": false,
+    "status": "ACTIVE",
+    "category_name": "Pendidikan"
+  },
+  {
+    "title": "Laskar Pelangi",
+    "author": "Andrea Hirata",
+    "publisher": "Bentang Pustaka",
+    "year_published": 2005,
+    "isbn": "9789793062792",
+    "physical_stock": 15,
+    "is_physical_available": true,
+    "is_digital_available": true,
+    "status": "ACTIVE",
+    "category_name": "Sastra"
+  },
+  {
+    "title": "Bumi Manusia",
+    "author": "Pramoedya Ananta Toer",
+    "publisher": "Lentera Dipantara",
+    "year_published": 2005,
+    "isbn": "9786020381006",
+    "physical_stock": 12,
+    "is_physical_available": true,
+    "is_digital_available": false,
+    "status": "ACTIVE",
+    "category_name": "Sastra"
+  },
+  {
+    "title": "Metodologi Penelitian Kualitatif",
+    "author": "Lexy J. Moleong",
+    "publisher": "Rosda",
+    "year_published": 2021,
+    "isbn": "9786020381007",
+    "physical_stock": 7,
+    "is_physical_available": true,
+    "is_digital_available": true,
+    "status": "ACTIVE",
+    "category_name": "Riset"
+  },
+  {
+    "title": "Statistika untuk Penelitian",
+    "author": "Sugiyono",
+    "publisher": "Alfabeta",
+    "year_published": 2020,
+    "isbn": "9786020381008",
+    "physical_stock": 9,
+    "is_physical_available": true,
+    "is_digital_available": false,
+    "status": "ACTIVE",
+    "category_name": "Riset"
+  }
+]
