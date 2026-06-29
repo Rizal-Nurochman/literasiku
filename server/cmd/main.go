@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	"github.com/literasiKu/database"
@@ -8,28 +9,30 @@ import (
 	"github.com/literasiKu/modules/auth/handler"
 	authrepo "github.com/literasiKu/modules/auth/repository"
 	authservice "github.com/literasiKu/modules/auth/service"
+	bookhandler "github.com/literasiKu/modules/book/handler"
 	bookrepo "github.com/literasiKu/modules/book/repository"
 	bookservice "github.com/literasiKu/modules/book/service"
-	bookhandler "github.com/literasiKu/modules/book/handler"
+	categoryhandler "github.com/literasiKu/modules/category/handler"
 	categoryrepo "github.com/literasiKu/modules/category/repository"
 	categoryservice "github.com/literasiKu/modules/category/service"
-	categoryhandler "github.com/literasiKu/modules/category/handler"
+	filehandler "github.com/literasiKu/modules/file/handler"
 	filerepo "github.com/literasiKu/modules/file/repository"
 	fileservice "github.com/literasiKu/modules/file/service"
-	filehandler "github.com/literasiKu/modules/file/handler"
+	userhandler "github.com/literasiKu/modules/user/handler"
 	userrepo "github.com/literasiKu/modules/user/repository"
 	userservice "github.com/literasiKu/modules/user/service"
-	userhandler "github.com/literasiKu/modules/user/handler"
+	physicalloanhandler "github.com/literasiKu/modules/physical_loan/handler"
 	physicalloanrepo "github.com/literasiKu/modules/physical_loan/repository"
 	physicalloanservice "github.com/literasiKu/modules/physical_loan/service"
-	physicalloanhandler "github.com/literasiKu/modules/physical_loan/handler"
+	digitalloanhandler "github.com/literasiKu/modules/digital_loan/handler"
 	digitalloanrepo "github.com/literasiKu/modules/digital_loan/repository"
 	digitalloanservice "github.com/literasiKu/modules/digital_loan/service"
-	digitalloanhandler "github.com/literasiKu/modules/digital_loan/handler"
 	"github.com/literasiKu/router"
 )
 
 func main() {
+	seedFlag := flag.Bool("seed", false, "Run database seeder")
+	flag.Parse()
 	cfg := config.LoadConfig()
 
 	if err := config.Connect(cfg); err != nil {
@@ -46,6 +49,14 @@ func main() {
 	}
 
 	db := config.GetDB()
+
+	if *seedFlag {
+		if err := database.Seeder(db); err != nil {
+			log.Fatalf("failed to seed database: %v", err)
+		}
+		log.Println("Seeding completed successfully")
+		return
+	}
 
 	jwtService := authservice.NewJWTService()
 	authRepo := authrepo.NewAuthRepository(db)

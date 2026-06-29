@@ -3,11 +3,10 @@ services:
     image: postgres:15-alpine
     container_name: literasiku_db
     restart: always
+    env_file:
+      - ./server/.env
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-rahasia123}
-      POSTGRES_DB: ${DB_NAME:-literasiku_db}
-      TZ: ${DB_TIMEZONE:-Asia/Jakarta}
+      TZ: Asia/Jakarta
     ports:
       - "5432:5432"
     volumes:
@@ -20,19 +19,12 @@ services:
     container_name: literasiku_go_api_dev
     working_dir: /app
     volumes:
-      - ./server:/app 
+      - ./server:/app
     command: sh -c "go install github.com/air-verse/air@latest && air -c .air.toml"
+    env_file:
+      - ./server/.env
     environment:
-      PORT: 8080
       APP_ENV: development
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-rahasia123}
-      DB_NAME: ${DB_NAME:-literasiku_db}
-      DB_SSLMODE: disable
-      DB_TIMEZONE: Asia/Jakarta
-      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_here}
     ports:
       - "8080:8080"
     depends_on:
@@ -41,17 +33,14 @@ services:
       - literasiku-net
 
   nuxt-web:
-    image: node:22-alpine
+    image: node:22-bookworm-slim
     container_name: literasiku_nuxt_dev
     working_dir: /app
     volumes:
       - ./client:/app
-    command: sh -c "yarn install && yarn dev -o"
-    environment:
-      PORT: 3000
-      HOST: 0.0.0.0
-      NUXT_GO_API_BASE_URL: http://go-api:8080
-      NUXT_GO_INTERNAL_API_KEY: ${NUXT_GO_INTERNAL_API_KEY:-kunci_rahasia_internal}
+    command: sh -c "yarn install && yarn dev --host 0.0.0.0"
+    env_file:
+      - ./client/.env
     ports:
       - "3000:3000"
     depends_on:
