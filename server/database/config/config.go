@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/joho/godotenv"
 )
@@ -67,10 +68,23 @@ func loadEnv() error {
 		return err
 	}
 
+	// CWD-based candidates (original behavior)
 	candidates := []string{
 		filepath.Join(cwd, ".env"),
 		filepath.Join(cwd, "..", ".env"),
 		filepath.Join(cwd, "../..", ".env"),
+	}
+
+	// Source-file-based candidates (works regardless of CWD).
+	// This file lives at server/database/config/config.go,
+	// so we walk up to find server/.env.
+	_, currentFile, _, ok := runtime.Caller(0)
+	if ok {
+		configDir := filepath.Dir(currentFile) // .../database/config
+		candidates = append(candidates,
+			filepath.Join(configDir, "..", "..", ".env"),  // .../server/.env
+			filepath.Join(configDir, "..", "..", "..", ".env"), // .../project-root/.env
+		)
 	}
 
 	var lastErr error

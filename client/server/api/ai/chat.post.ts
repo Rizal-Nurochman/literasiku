@@ -3,6 +3,7 @@ import { Pinecone } from '@pinecone-database/pinecone'
 import { ChatOpenAI } from '@langchain/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { StringOutputParser } from '@langchain/core/output_parsers'
+import { throwError } from '~~/server/utils/apiCall'
 
 env.allowLocalModels = true
 env.useBrowserCache = false
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!body.bookId || !body.query) {
-    throw createError({
+    throwError({
       statusCode: 400,
       statusMessage: 'bookId and query are required'
     })

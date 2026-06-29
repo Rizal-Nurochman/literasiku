@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"log"
 
 	"github.com/literasiKu/database"
@@ -9,16 +8,15 @@ import (
 	"github.com/literasiKu/modules/auth/handler"
 	authrepo "github.com/literasiKu/modules/auth/repository"
 	authservice "github.com/literasiKu/modules/auth/service"
-	bookhandler "github.com/literasiKu/modules/book/handler"
 	bookrepo "github.com/literasiKu/modules/book/repository"
 	bookservice "github.com/literasiKu/modules/book/service"
-	categoryhandler "github.com/literasiKu/modules/category/handler"
+	bookhandler "github.com/literasiKu/modules/book/handler"
 	categoryrepo "github.com/literasiKu/modules/category/repository"
 	categoryservice "github.com/literasiKu/modules/category/service"
-	filehandler "github.com/literasiKu/modules/file/handler"
+	categoryhandler "github.com/literasiKu/modules/category/handler"
 	filerepo "github.com/literasiKu/modules/file/repository"
 	fileservice "github.com/literasiKu/modules/file/service"
-	userhandler "github.com/literasiKu/modules/user/handler"
+	filehandler "github.com/literasiKu/modules/file/handler"
 	userrepo "github.com/literasiKu/modules/user/repository"
 	userservice "github.com/literasiKu/modules/user/service"
 	physicalloanhandler "github.com/literasiKu/modules/physical_loan/handler"
@@ -31,8 +29,6 @@ import (
 )
 
 func main() {
-	seedFlag := flag.Bool("seed", false, "Run database seeder")
-	flag.Parse()
 	cfg := config.LoadConfig()
 
 	if err := config.Connect(cfg); err != nil {
@@ -50,7 +46,7 @@ func main() {
 
 	db := config.GetDB()
 
-	if *seedFlag {
+	if seedFlag {
 		if err := database.Seeder(db); err != nil {
 			log.Fatalf("failed to seed database: %v", err)
 		}
