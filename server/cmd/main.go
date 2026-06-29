@@ -29,6 +29,9 @@ import (
 )
 
 func main() {
+	seedFlag := flag.Bool("seed", false, "Run database seeder")
+	flag.Parse()
+	
 	cfg := config.LoadConfig()
 
 	if err := config.Connect(cfg); err != nil {
