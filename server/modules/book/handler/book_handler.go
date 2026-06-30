@@ -158,6 +158,7 @@ func toBookResponse(book *entities.Book) dto.BookResponse {
 		IsPhysicalAvailable: book.IsPhysicalAvailable,
 		IsDigitalAvailable:  book.IsDigitalAvailable,
 		Status:            book.Status,
+		FileURL:           book.FileURL,
 		CreatedAt:         book.CreatedAt,
 		UpdatedAt:         book.UpdatedAt,
 	}

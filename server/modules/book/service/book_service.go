@@ -61,6 +61,7 @@ func (s *bookService) Create(ctx context.Context, req dto.BookRequest) (*entitie
 		IsPhysicalAvailable: req.IsPhysicalAvailable,
 		IsDigitalAvailable:  req.IsDigitalAvailable,
 		Status:              req.Status,
+		FileURL:             req.FileURL,
 	}
 
 	if book.Status == "" {
@@ -134,6 +135,7 @@ func (s *bookService) Update(ctx context.Context, id uint, req dto.BookRequest) 
 	book.IsPhysicalAvailable = req.IsPhysicalAvailable
 	book.IsDigitalAvailable = req.IsDigitalAvailable
 	book.Status = req.Status
+	book.FileURL = req.FileURL
 
 	if err := s.bookRepo.Update(book); err != nil {
 		return nil, err

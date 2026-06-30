@@ -38,13 +38,16 @@ export const useBooks = () => {
       method: 'POST',
       body: input
     }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [BOOK_KEY] })
       toast.add({
         title: 'Buku berhasil ditambahkan',
         color: 'success',
         icon: 'i-lucide-circle-check'
       })
+      if (data.is_digital_available && data.file_url) {
+        $fetch('/api/ai/embed', { method: 'POST', body: { bookId: data.id, fileUrl: data.file_url } }).catch(e => console.error(e))
+      }
     },
     onError: (error: any) => {
       toast.add({
@@ -62,13 +65,16 @@ export const useBooks = () => {
         method: 'PATCH',
         body: data
       }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [BOOK_KEY] })
       toast.add({
         title: 'Buku berhasil diperbarui',
         color: 'success',
         icon: 'i-lucide-circle-check'
       })
+      if (data.is_digital_available && data.file_url) {
+        $fetch('/api/ai/embed', { method: 'POST', body: { bookId: data.id, fileUrl: data.file_url } }).catch(e => console.error(e))
+      }
     },
     onError: (error: any) => {
       toast.add({

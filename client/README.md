@@ -6,10 +6,11 @@ Literasiku adalah web digital library berbasis Nuxt dengan DeepSeek-powered AI A
 
 - Nuxt 4
 - Nuxt UI
-- Vercel AI SDK
-- `@ai-sdk/deepseek`
+- LangChain (ChatOpenAI)
+- HuggingFace Transformers (feature extraction / embedding)
 - Pinecone Vector DB
-- Native SSE
+- Zod validation
+- Vue Query (@tanstack/vue-query)
 - PDF RAG
 - NotebookLM-style citation UI
 - Yarn
@@ -26,21 +27,32 @@ Isi `.env` dengan DeepSeek, embedding provider, dan Pinecone key. API key hanya 
 
 ## Environment
 
-```env
-NUXT_DEEPSEEK_API_KEY=
-NUXT_DEEPSEEK_FAST_MODEL=deepseek-v4-flash
-NUXT_DEEPSEEK_THINKING_MODEL=deepseek-v4-pro
-NUXT_AI_DEFAULT_MODE=fast
-NUXT_AI_GATEWAY_API_KEY=
-NUXT_AI_EMBEDDING_MODEL=openai/text-embedding-3-small
-NUXT_PINECONE_API_KEY=
-NUXT_PINECONE_INDEX_NAME=literasiku
-NUXT_PINECONE_NAMESPACE=default
-NUXT_PINECONE_MEMORY_NAMESPACE=memory
-NUXT_MEMORY_ENABLED=true
-NUXT_RAG_MIN_SCORE=0.3
-NUXT_RAG_MAX_REFERENCES=8
+Copy `.env.example` to `.env` and fill in required values:
+
+```bash
+cp .env.example .env
 ```
+
+### Variable Reference
+
+| Variable | Wajib | Default | Deskripsi |
+|---|---|---|---|
+| `LOG_LEVEL` | Tidak | `info` | Log level (trace/debug/info/warn/error/fatal) |
+| `NODE_ENV` | Tidak | `development` | Environment mode |
+| `NUXT_GO_API_BASE_URL` | Ya | `http://localhost:8080` | Base URL Go backend API |
+| `NUXT_GO_INTERNAL_API_KEY` | Ya | - | Internal API key untuk Go backend |
+| `NUXT_PINECONE_API_KEY` | Ya | - | API key Pinecone vector database |
+| `NUXT_PINECONE_INDEX_NAME` | Tidak | `literasiku` | Nama index Pinecone |
+| `NUXT_PINECONE_NAMESPACE` | Tidak | `default` | Namespace Pinecone untuk dokumen |
+| `NUXT_RAG_MIN_SCORE` | Tidak | `0.3` | Minimum similarity score RAG |
+| `NUXT_RAG_MAX_REFERENCES` | Tidak | `8` | Maximum RAG references |
+| `NUXT_FLAZ_API_KEY` | Ya | - | API key LLM provider (OpenAI-compatible) |
+| `NUXT_LLM_MODEL` | Tidak | `deepseek-v4-flash` | Nama model LLM |
+| `NUXT_FLAZ_BASE_URL` | Ya | - | Base URL LLM provider |
+| `PORT` | Tidak | `3000` | Port Nitro server (deployment) |
+| `HOST` | Tidak | `0.0.0.0` | Host Nitro server (deployment) |
+
+> **Catatan Security:** Variables `NUXT_DEEPSEEK_API_KEY`, `NUXT_DEEPSEEK_FAST_MODEL`, `NUXT_DEEPSEEK_THINKING_MODEL`, `NUXT_AI_DEFAULT_MODE`, `NUXT_AI_GATEWAY_API_KEY`, `NUXT_AI_EMBEDDING_MODEL`, `NUXT_PINECONE_MEMORY_NAMESPACE`, dan `NUXT_MEMORY_ENABLED` sudah tidak digunakan oleh kode saat ini. Variabel `NUXT_FLAZ_API_KEY`, `NUXT_LLM_MODEL`, dan `NUXT_FLAZ_BASE_URL` menggantikan fungsinya di endpoint AI chat.
 
 ## Commands
 

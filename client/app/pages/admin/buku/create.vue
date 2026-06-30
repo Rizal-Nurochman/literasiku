@@ -8,14 +8,14 @@ definePageMeta({
 })
 
 const router = useRouter()
+const toast = useToast()
 const { createBookMutation } = useBooks()
-const { useCategoriesList } = useCategories()
 
-const { data: categoriesData, isLoading: categoriesLoading } = useCategoriesList()
+const { categories: categoriesData, isLoading: categoriesLoading } = useCategories()
 
 const categoryOptions = computed(() => {
-  const cats = categoriesData.value?.data ?? []
-  return cats.map(c => ({ label: c.name, value: c.id }))
+  const cats = categoriesData.value ?? []
+  return cats.map((c: any) => ({ label: c.name, value: c.id }))
 })
 
 const statusOptions = BOOK_STATUS.map(s => {
@@ -38,8 +38,37 @@ const state = reactive<CreateBookInput>({
   physical_stock: 0,
   is_physical_available: true,
   is_digital_available: false,
-  status: 'ACTIVE'
+  status: 'ACTIVE',
+  file_url: ''
 })
+
+const isUploading = ref(false)
+
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (!target.files?.length) return
+
+  const file = target.files[0]
+  if (!file) return
+  
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('folder', '/literasiku/books')
+
+  try {
+    isUploading.value = true
+    const res = await $fetch<any>('/api/upload', {
+      method: 'POST',
+      body: formData
+    })
+    state.file_url = res.data.url
+    toast.add({ title: 'File berhasil diunggah', color: 'success', icon: 'i-lucide-check-circle' })
+  } catch (error: any) {
+    toast.add({ title: 'Gagal mengunggah file', description: error?.data?.statusMessage || 'Error', color: 'error', icon: 'i-lucide-x-circle' })
+  } finally {
+    isUploading.value = false
+  }
+}
 
 const onSubmit = () => {
   createBookMutation.mutate(state, {
@@ -48,18 +77,21 @@ const onSubmit = () => {
     }
   })
 }
+
+const goBack = async () => {
+  await router.push('/admin/buku')
+}
 </script>
 
 <template>
   <div class="max-w-3xl mx-auto space-y-6">
-    <!-- Header -->
     <div class="flex items-center gap-3">
       <UButton
         icon="i-lucide-arrow-left"
         variant="ghost"
         color="neutral"
         size="sm"
-        @click="router.push('/admin/buku')"
+        @click="goBack"
       />
       <div>
         <h1 class="text-2xl font-bold tracking-tight">Tambah Buku Baru</h1>
@@ -207,6 +239,32 @@ const onSubmit = () => {
           </UFormField>
         </div>
 
+        <div v-if="state.is_digital_available" class="space-y-4">
+          <USeparator />
+          <UFormField label="File Buku (PDF)" name="file_url">
+            <div class="flex flex-col gap-3">
+              <UInput
+                type="file"
+                accept="application/pdf"
+                :loading="isUploading"
+                :disabled="isUploading"
+                @change="handleFileUpload"
+                icon="i-lucide-upload-cloud"
+                size="md"
+              />
+              <UInput
+                v-model="state.file_url"
+                placeholder="Atau masukkan URL file secara manual"
+                icon="i-lucide-link"
+                size="md"
+              />
+              <p v-if="state.file_url" class="text-xs text-emerald-600 dark:text-emerald-400 break-all">
+                URL tersimpan: {{ state.file_url }}
+              </p>
+            </div>
+          </UFormField>
+        </div>
+
         <!-- Actions -->
         <USeparator />
 
@@ -216,7 +274,7 @@ const onSubmit = () => {
             variant="ghost"
             color="neutral"
             size="md"
-            @click="router.push('/admin/buku')"
+            @click="goBack"
           />
           <UButton
             type="submit"

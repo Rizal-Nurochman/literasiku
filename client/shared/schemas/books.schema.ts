@@ -42,16 +42,11 @@ export const createBookSchema = z.object({
   })
   .positive(),
 
-  physical_stock: z
-    .number()
-    .int()
-    .min(0),
-
-  is_physical_available: z.boolean(),
-
-  is_digital_available: z.boolean(),
-
-  status: z.enum(BOOK_STATUS).default('ACTIVE')
+  physical_stock: z.number().int().min(0, 'Stok fisik tidak boleh negatif'),
+  is_physical_available: z.boolean().default(true),
+  is_digital_available: z.boolean().default(false),
+  status: z.enum(BOOK_STATUS).default('ACTIVE'),
+  file_url: z.string().url('Format URL tidak valid').max(500).optional().or(z.literal('')),
 })
 
 export const updateBookSchema = createBookSchema.partial()

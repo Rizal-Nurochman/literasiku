@@ -8,6 +8,7 @@ import (
 	bookhandler "github.com/literasiKu/modules/book/handler"
 	categoryhandler "github.com/literasiKu/modules/category/handler"
 	filehandler "github.com/literasiKu/modules/file/handler"
+	uploadhandler "github.com/literasiKu/modules/upload/handler"
 	"github.com/literasiKu/modules/auth/service"
 	healthhandler "github.com/literasiKu/modules/health/handler"
 	userhandler "github.com/literasiKu/modules/user/handler"
@@ -24,6 +25,7 @@ type Deps struct {
 	UserHandler         userhandler.UserHandler
 	PhysicalLoanHandler physicalloanhandler.PhysicalLoanHandler
 	DigitalLoanHandler  digitalloanhandler.DigitalLoanHandler
+	UploadHandler       uploadhandler.UploadHandler
 	JWTService          service.JWTService
 }
 
@@ -140,6 +142,12 @@ func New(deps Deps) *gin.Engine {
 			adminDigitalLoans.Use(middlewares.AdminOnly())
 			adminDigitalLoans.GET("", deps.DigitalLoanHandler.GetAll)
 			adminDigitalLoans.PATCH("/:id/revoke", deps.DigitalLoanHandler.Revoke)
+		}
+
+		uploads := api.Group("/uploads")
+		uploads.Use(middlewares.Authenticate(deps.JWTService), middlewares.AdminOnly())
+		{
+			uploads.POST("", deps.UploadHandler.Upload)
 		}
 	}
 

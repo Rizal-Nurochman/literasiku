@@ -30,6 +30,7 @@ import (
 	digitalloanrepo "github.com/literasiKu/modules/digital_loan/repository"
 	digitalloanservice "github.com/literasiKu/modules/digital_loan/service"
 	digitalloanhandler "github.com/literasiKu/modules/digital_loan/handler"
+	uploadhandler "github.com/literasiKu/modules/upload/handler"
 	"github.com/literasiKu/router"
 )
 
@@ -81,6 +82,7 @@ func init() {
 	userHandler := userhandler.NewUserHandler(userSvc)
 	physicalLoanHandler := physicalloanhandler.NewPhysicalLoanHandler(physicalLoanSvc)
 	digitalLoanHandler := digitalloanhandler.NewDigitalLoanHandler(digitalLoanSvc)
+	uploadHandler := uploadhandler.NewUploadHandler()
 
 	engine = router.New(router.Deps{
 		AuthHandler:         authHandler,
@@ -90,6 +92,7 @@ func init() {
 		UserHandler:         userHandler,
 		PhysicalLoanHandler: physicalLoanHandler,
 		DigitalLoanHandler:  digitalLoanHandler,
+		UploadHandler:       uploadHandler,
 		JWTService:          jwtService,
 	})
 }

@@ -13,6 +13,7 @@ type BookRequest struct {
 	IsPhysicalAvailable bool `json:"is_physical_available"`
 	IsDigitalAvailable  bool `json:"is_digital_available"`
 	Status          string `json:"status" binding:"omitempty,oneof=ACTIVE INACTIVE DAMAGED LOST"`
+	FileURL         string `json:"file_url" binding:"omitempty,max=500"`
 }
 
 type BookResponse struct {
@@ -27,6 +28,7 @@ type BookResponse struct {
 	IsPhysicalAvailable bool     `json:"is_physical_available"`
 	IsDigitalAvailable  bool     `json:"is_digital_available"`
 	Status            string    `json:"status"`
+	FileURL           string    `json:"file_url"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
 }

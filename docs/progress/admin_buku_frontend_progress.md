@@ -46,3 +46,24 @@ Seluruh antarmuka admin untuk buku telah dibangun menggunakan Nuxt UI v4:
 
 ## Kesimpulan
 Seluruh fungsionalitas utama untuk modul "Manajemen Buku" di sisi Admin (Frontend) telah berhasil diimplementasikan sepenuhnya sesuai dengan schema data dan alur otorisasi (JWT) yang diminta oleh Backend Go, tanpa mengubah satu baris pun kode pada sistem Backend.
+
+## 6. Implementasi PDF Upload & AI Background Embedding
+Sebagai kelanjutan dari fitur manajemen buku, sistem telah di-upgrade dengan kapabilitas AI:
+- **Backend Go**:
+  - Menambahkan field `file_url` pada entitas dan DTO `Book`.
+  - Mengintegrasikan ImageKit SDK v2 untuk menangani proses upload file ke CDN ImageKit secara aman.
+  - Membuat endpoint `POST /api/v1/uploads` dengan middleware admin dan otentikasi.
+- **Frontend Proxy & UI**:
+  - Membuat Proxy server `POST /api/upload` di Nuxt Nitro untuk meneruskan file multipart/form-data.
+  - Memperbarui halaman `create.vue` dan `[id]/edit.vue` untuk memunculkan input upload file PDF dinamis saat flag `is_digital_available` aktif. Menampilkan juga indikator proses unggahan.
+- **AI RAG Pipeline**:
+  - Membuat worker endpoint di Nuxt Nitro `POST /api/ai/embed.post.ts`.
+  - Mengimplementasikan alur ekstraksi teks dari PDF menggunakan `pdf-parse`, _chunking_ dengan `RecursiveCharacterTextSplitter`, serta vektor _embedding_ melalui transformer lokal (`@huggingface/transformers`).
+  - Menyimpan _knowledge vector_ tersebut ke Pinecone secara batch (v8 SDK format: `{ records: vectors }`).
+  - Proses berjalan otomatis dan efisien di _background layer_ (melalui IIFE asynchronous) saat admin menyimpan buku yang tersedia dalam bentuk digital dan memiliki file digital.
+  - Memperbaiki tipe dan validasi TS pada model chat/embedding lama (`chat.post.ts`).
+- **Validasi Keseluruhan**:
+  - Backend berhasil di-_build_ (`go build`).
+  - Klien Nuxt lulus verifikasi _typecheck_ (`npx nuxi typecheck`) secara penuh tanpa error pada tipe _Blob_ dan FormData.
+
+Kesimpulan akhir: Sistem RAG Literasiku kini terhubung penuh dari proses upload file di admin, penyimpanan di ImageKit, hingga *auto-indexing* vektor dokumen ke Pinecone.

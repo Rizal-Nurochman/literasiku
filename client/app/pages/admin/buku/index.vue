@@ -8,7 +8,7 @@ definePageMeta({
 
 const router = useRouter()
 const { useBooksList, deleteBookMutation } = useBooks()
-const { useCategoriesList } = useCategories()
+const { categories } = useCategories()
 
 const page = ref(1)
 const limit = ref(10)
@@ -22,14 +22,12 @@ const { data: booksData, isLoading, isFetching } = useBooksList({
   categoryId: selectedCategoryId
 })
 
-const { data: categoriesData } = useCategoriesList()
-
 const books = computed(() => booksData.value?.data ?? [])
 const totalPages = computed(() => booksData.value?.total_pages ?? 1)
 const totalBooks = computed(() => booksData.value?.total ?? 0)
 
 const categoryOptions = computed(() => {
-  const cats = categoriesData.value?.data ?? []
+  const cats = categories.value ?? []
   return [
     { label: 'Semua Kategori', value: undefined },
     ...cats.map(c => ({ label: c.name, value: c.id }))
@@ -38,7 +36,7 @@ const categoryOptions = computed(() => {
 
 const categoryMap = computed(() => {
   const map = new Map<number, string>()
-  const cats = categoriesData.value?.data ?? []
+  const cats = categories.value ?? []
   cats.forEach(c => map.set(c.id, c.name))
   return map
 })
@@ -104,11 +102,23 @@ watch(search, () => {
 watch(selectedCategoryId, () => {
   page.value = 1
 })
+
+const goToCreate = async () => {
+  await router.push('/admin/buku/create')
+}
+
+const goToEdit = async (id: number) => {
+  await router.push(`/admin/buku/${id}/edit`)
+}
+
+
+const toggleModal = async () => {
+  showDeleteModal.value = !showDeleteModal.value
+}
 </script>
 
 <template>
   <div class="space-y-6">
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold tracking-tight">Manajemen Buku</h1>
@@ -122,11 +132,10 @@ watch(selectedCategoryId, () => {
         label="Tambah Buku"
         color="primary"
         size="md"
-        @click="router.push('/admin/buku/create')"
+        @click="() => "
       />
     </div>
 
-    <!-- Filters -->
     <UCard>
       <div class="flex flex-col sm:flex-row gap-3">
         <UInput
@@ -147,7 +156,6 @@ watch(selectedCategoryId, () => {
       </div>
     </UCard>
 
-    <!-- Table -->
     <UCard>
       <div v-if="isLoading" class="flex items-center justify-center py-16">
         <div class="text-center space-y-3">
@@ -172,12 +180,11 @@ watch(selectedCategoryId, () => {
           label="Tambah Buku Pertama"
           color="primary"
           variant="soft"
-          @click="router.push('/admin/buku/create')"
+          @click="goToCreate"
         />
       </div>
 
       <div v-else class="relative">
-        <!-- Loading overlay for refetch -->
         <div
           v-if="isFetching && !isLoading"
           class="absolute inset-0 bg-white/60 dark:bg-zinc-900/60 z-10 flex items-center justify-center rounded-lg backdrop-blur-[1px]"
@@ -204,7 +211,6 @@ watch(selectedCategoryId, () => {
                 :key="book.id"
                 class="border-b border-zinc-100 dark:border-zinc-800/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors"
               >
-                <!-- Title -->
                 <td class="px-4 py-3">
                   <div class="max-w-[260px]">
                     <p class="font-medium truncate">{{ book.title }}</p>
@@ -213,9 +219,7 @@ watch(selectedCategoryId, () => {
                     </p>
                   </div>
                 </td>
-                <!-- Author -->
                 <td class="px-4 py-3 text-muted">{{ book.author }}</td>
-                <!-- Category -->
                 <td class="px-4 py-3">
                   <UBadge
                     variant="subtle"
@@ -225,9 +229,7 @@ watch(selectedCategoryId, () => {
                     {{ categoryMap.get(book.category_id) ?? 'Tanpa Kategori' }}
                   </UBadge>
                 </td>
-                <!-- ISBN -->
                 <td class="px-4 py-3 font-mono text-xs text-muted">{{ book.isbn || '-' }}</td>
-                <!-- Stock -->
                 <td class="px-4 py-3">
                   <span
                     :class="book.physical_stock > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'"
@@ -236,7 +238,6 @@ watch(selectedCategoryId, () => {
                     {{ book.physical_stock }}
                   </span>
                 </td>
-                <!-- Availability -->
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
                     <UTooltip text="Fisik">
@@ -255,13 +256,11 @@ watch(selectedCategoryId, () => {
                     </UTooltip>
                   </div>
                 </td>
-                <!-- Status -->
                 <td class="px-4 py-3">
                   <UBadge :color="statusColor(book.status)" variant="subtle" size="xs">
                     {{ statusLabel(book.status) }}
                   </UBadge>
                 </td>
-                <!-- Actions -->
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-1">
                     <UTooltip text="Edit">
@@ -270,7 +269,7 @@ watch(selectedCategoryId, () => {
                         variant="ghost"
                         color="neutral"
                         size="xs"
-                        @click="router.push(`/admin/buku/${book.id}/edit`)"
+                        @click="() => goToEdit(book.id)"
                       />
                     </UTooltip>
                     <UTooltip text="Hapus">
@@ -290,7 +289,6 @@ watch(selectedCategoryId, () => {
         </div>
       </div>
 
-      <!-- Pagination -->
       <div
         v-if="books.length > 0"
         class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800 mt-4"
@@ -306,8 +304,7 @@ watch(selectedCategoryId, () => {
       </div>
     </UCard>
 
-    <!-- Delete Confirmation Modal -->
-    <UModal v-model:open="showDeleteModal">
+    <UModal v-model="showDeleteModal">
       <template #content>
         <div class="p-6 space-y-4">
           <div class="flex items-center gap-3">
@@ -330,7 +327,7 @@ watch(selectedCategoryId, () => {
               label="Batal"
               variant="ghost"
               color="neutral"
-              @click="showDeleteModal = false"
+              @click="toggleModal"
             />
             <UButton
               label="Hapus"

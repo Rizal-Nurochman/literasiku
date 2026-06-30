@@ -91,10 +91,10 @@ export default defineEventHandler(async (event) => {
     .join('\n')
 
   const llm = new ChatOpenAI({
-    apiKey: config.flazApiKey,
-    model: config.llmModel,
+    apiKey: String(config.flazApiKey),
+    model: String(config.llmModel),
     configuration: {
-      baseURL: config.flazBaseUrl
+      baseURL: String(config.flazBaseUrl)
     }
   })
 

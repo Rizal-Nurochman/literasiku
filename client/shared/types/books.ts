@@ -25,6 +25,7 @@ export type BookResponse = {
   is_physical_available: boolean
   is_digital_available: boolean
   status: BookStatus
+  file_url: string
   created_at: string
   updated_at: string
 }
@@ -48,6 +49,7 @@ export type CreateBookRequest = {
   is_physical_available: boolean
   is_digital_available: boolean
   status?: BookStatus
+  file_url?: string
 }
 
 export type UpdateBookRequest = Partial<CreateBookRequest>

@@ -12,6 +12,7 @@ type Book struct {
 	IsPhysicalAvailable bool `gorm:"column:is_physical_available;not null;default:true" json:"is_physical_available"`
 	IsDigitalAvailable bool  `gorm:"column:is_digital_available;not null;default:false" json:"is_digital_available"`
 	Status      string `gorm:"column:status;type:varchar(10);not null;default:'ACTIVE';check:chk_book_status,status IN ('ACTIVE','INACTIVE','DAMAGED','LOST')" json:"status"`
+	FileURL     string `gorm:"column:file_url;type:varchar(500)" json:"file_url"`
 	Timestamp
 
 	Category        BookCategory      `gorm:"foreignKey:CategoryID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"category,omitempty"`
