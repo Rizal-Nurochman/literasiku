@@ -36,50 +36,50 @@ export const NAV_SIDEBAR_ADMIN=[
     {
       label: 'Dashboard',
       icon: 'i-lucide-layout-dashboard',
-      to: '/dashboard'
+      to: '/admin'
     }
   ],
   [
     {
       label: 'Buku',
       icon: 'i-lucide-book-open',
-      to: '/dashboard/buku'
+      to: '/admin/buku'
     },
     {
       label: 'Kategori',
       icon: 'i-lucide-tag',
-      to: '/dashboard/kategori'
+      to: '/admin/kategori'
     }
   ],
   [
     {
       label: 'Anggota',
       icon: 'i-lucide-users',
-      to: '/dashboard/anggota'
+      to: '/admin/anggota'
     }
   ],
   [
     {
       label: 'Peminjaman Fisik',
       icon: 'i-lucide-book-copy',
-      to: '/dashboard/peminjaman/fisik'
+      to: '/admin/peminjaman/fisik'
     },
     {
       label: 'Peminjaman Digital',
       icon: 'i-lucide-tablet-smartphone',
-      to: '/dashboard/peminjaman/digital'
+      to: '/admin/peminjaman/digital'
     }
   ],
   [
     {
       label: 'Denda',
       icon: 'i-lucide-circle-dollar-sign',
-      to: '/dashboard/denda'
+      to: '/admin/denda'
     },
     {
       label: 'Laporan',
       icon: 'i-lucide-bar-chart-3',
-      to: '/dashboard/laporan'
+      to: '/admin/laporan'
     }
   ]
 ]

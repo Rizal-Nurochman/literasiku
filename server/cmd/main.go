@@ -58,7 +58,7 @@ func main() {
 		log.Println("Seeding completed successfully")
 		return
 	}
-
+ 
 	jwtService := authservice.NewJWTService()
 	authRepo := authrepo.NewAuthRepository(db)
 	authSvc := authservice.NewAuthService(authRepo, jwtService)

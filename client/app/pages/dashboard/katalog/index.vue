@@ -144,7 +144,7 @@ const filteredBooks = computed(() => {
             data-cursor="card"
           >
             <div class="space-y-5">
-              <div class="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary/20 via-default to-secondary/20">
+              <div class="relative flex aspect-4/3 items-center justify-center overflow-hidden rounded-xl bg-linear-to-br from-primary/20 via-default to-secondary/20">
                 <div class="absolute inset-0 bg-grid-soft opacity-50" />
 
                 <div class="relative flex size-20 items-center justify-center rounded-2xl bg-default/85 text-primary shadow-lg backdrop-blur transition-transform duration-300 group-hover:scale-105">

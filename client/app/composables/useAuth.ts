@@ -19,10 +19,14 @@ export const useAuth = () => {
 
   const authQuery = useQuery({
     queryKey: ['auth', 'me'],
-    queryFn: () => $fetch<AuthUser>('/api/auth/me', {
-      headers: getHeaders()
-    }),
-    enabled: computed(() => Boolean(session.value))
+    queryFn: async () => {
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      const raw = localStorage.getItem('literasiku_user')
+
+      return raw ? JSON.parse(raw) as AuthUser : null
+    },
+    enabled: computed(() => !!session.value)
   })
 
   const setSession = (payload: AuthSession, message: string) => {
