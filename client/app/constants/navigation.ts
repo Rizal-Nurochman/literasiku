@@ -19,18 +19,8 @@ export const NAV_USER=(user:any, logoutMutation:any)=> [
     {
       label:'Dashboard',
       icon:'i-lucide-home',
-      to:'/dashboard'
+      to:user.value.role==='ADMIN'?'/admin':'/dashboard'
     },
-    {
-      label: 'Profil',
-      icon: 'i-lucide-user-round',
-      to: '/dashboard/profil'
-    },
-    {
-      label: 'Riwayat Peminjaman',
-      icon: 'i-lucide-history',
-      to: '/dashboard/riwayat'
-    }
   ],
   [
     {

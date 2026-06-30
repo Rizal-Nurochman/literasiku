@@ -41,7 +41,7 @@ services:
       - literasiku-net
 
   nuxt-web:
-    image: node:22-alpine
+    image: node:22-slim
     container_name: client
     user: "1000:1000"
     working_dir: /app

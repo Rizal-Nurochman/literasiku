@@ -1,6 +1,5 @@
 # Build Stage 1
-
-FROM node:22-alpine AS build
+FROM node:22-slim AS build
 WORKDIR /app
 
 RUN corepack enable
@@ -18,8 +17,7 @@ COPY . ./
 RUN yarn build
 
 # Build Stage 2
-
-FROM node:22-alpine
+FROM node:22-slim
 WORKDIR /app
 
 # Only `.output` folder is needed from the build stage
