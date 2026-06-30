@@ -17,7 +17,7 @@ services:
 
   go-api:
     image: golang:1.25-alpine
-    container_name: literasiku_go_api_dev
+    container_name: server
     working_dir: /app
     volumes:
       - ./server:/app 
@@ -42,7 +42,8 @@ services:
 
   nuxt-web:
     image: node:22-alpine
-    container_name: literasiku_nuxt_dev
+    container_name: client
+    user: "1000:1000"
     working_dir: /app
     volumes:
       - ./client:/app
