@@ -22,6 +22,25 @@ export const useUsers = (params?: { page?: Ref<number>, limit?: Ref<number>, sea
     }
   })
 
+  const useMeQuery = () => useQuery({
+    queryKey: ['users', 'me'],
+    queryFn: () => $fetch<UserResponse>('/api/users/me')
+  })
+
+  const updateMeMutation = useMutation({
+    mutationFn: (data: UpdateUserInput) => $fetch<UserResponse>('/api/users/me', {
+      method: 'PATCH',
+      body: data
+    }),
+    onSuccess: () => {
+      toast.add({ title: 'Profil berhasil diperbarui', color: 'success', icon: 'i-lucide-check-circle' })
+      queryClient.invalidateQueries({ queryKey: ['users', 'me'] })
+    },
+    onError: (err: any) => {
+      toast.add({ title: 'Gagal memperbarui profil', description: err?.data?.message || err.message, color: 'error', icon: 'i-lucide-alert-circle' })
+    }
+  })
+
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: number, data: UpdateUserInput }) => $fetch<UserResponse>(`/api/users/${id}`, {
       method: 'PATCH',
@@ -56,6 +75,8 @@ export const useUsers = (params?: { page?: Ref<number>, limit?: Ref<number>, sea
     isLoading: computed(() => usersQuery.isLoading.value),
     isError: computed(() => usersQuery.isError.value),
     error: computed(() => usersQuery.error.value),
+    useMeQuery,
+    updateMeMutation,
     updateMutation,
     deleteMutation
   }
