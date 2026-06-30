@@ -1,10 +1,43 @@
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/vue-query'
 import type { CreateLoanInput, CreateDigitalLoanInput } from '#shared/schemas/loans.schema'
 import type { LoanResponse, DigitalLoanResponse } from '#shared/types/loans'
+import type { PaginatedResponse } from '#shared/types/api'
 
 export const useLoans = () => {
   const queryClient = useQueryClient()
   const toast = useToast()
+
+  const useMyPhysicalLoans = (params: { page: Ref<number>, limit: Ref<number> }) => {
+    return useQuery({
+      queryKey: ['loans', 'physical', 'my', params.page, params.limit],
+      queryFn: () => $fetch<PaginatedResponse<LoanResponse>>('/api/loans/physical/my', {
+        query: {
+          page: params.page.value,
+          limit: params.limit.value
+        }
+      })
+    })
+  }
+
+  const useMyDigitalLoans = (params: { page: Ref<number>, limit: Ref<number> }) => {
+    return useQuery({
+      queryKey: ['loans', 'digital', 'my', params.page, params.limit],
+      queryFn: () => $fetch<PaginatedResponse<DigitalLoanResponse>>('/api/loans/digital/my', {
+        query: {
+          page: params.page.value,
+          limit: params.limit.value
+        }
+      })
+    })
+  }
+
+  const useDigitalAccess = (bookId: Ref<number | string>) => {
+    return useQuery({
+      queryKey: ['loans', 'digital', 'access', bookId],
+      queryFn: () => $fetch<{ has_access: boolean }>(`/api/loans/digital/access/${bookId.value}`),
+      enabled: computed(() => !!bookId.value)
+    })
+  }
 
   const borrowPhysicalMutation = useMutation({
     mutationFn: (input: CreateLoanInput) => $fetch<LoanResponse>('/api/loans/physical', {
@@ -37,6 +70,9 @@ export const useLoans = () => {
   })
 
   return {
+    useMyPhysicalLoans,
+    useMyDigitalLoans,
+    useDigitalAccess,
     borrowPhysicalMutation,
     borrowDigitalMutation
   }

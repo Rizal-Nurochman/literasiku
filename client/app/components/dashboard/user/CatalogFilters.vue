@@ -30,6 +30,10 @@ const onSearch = () => {
 const toggleSelectCategory = (categoryId: number) => {
   selectedCategory.value = selectedCategory.value === categoryId ? undefined : categoryId
 }
+
+const toggleSelectAvailability = (availability: string) => {
+  selectedAvailability.value = selectedAvailability.value === availability ? undefined : availability
+}
 </script>
 
 <template>
@@ -71,7 +75,7 @@ const toggleSelectCategory = (categoryId: number) => {
               :variant="selectedCategory === category.id ? 'solid' : 'soft'"
               :color="selectedCategory === category.id ? 'primary' : 'neutral'"
               size="sm"
-              @click="toggleSelectCategory(category)"
+              @click="toggleSelectCategory(category.id)"
             />
           </div>
         </div>
@@ -88,7 +92,7 @@ const toggleSelectCategory = (categoryId: number) => {
               :variant="selectedAvailability === availability ? 'solid' : 'soft'"
               :color="selectedAvailability === availability ? 'primary' : 'neutral'"
               size="sm"
-              @click="selectedAvailability = availability"
+              @click="toggleSelectAvailability(availability)"
             />
           </div>
         </div>

@@ -2,6 +2,7 @@ export interface LoanResponse {
   id: number
   user_id: number
   book_id: number
+  book_title: string
   borrow_date: string
   due_date: string
   return_date?: string
@@ -16,6 +17,7 @@ export interface DigitalLoanResponse {
   id: number
   user_id: number
   book_id: number
+  book_title: string
   access_status: 'ACTIVE' | 'EXPIRED' | 'REVOKED'
   start_date: string
   end_date: string
