@@ -4,15 +4,15 @@
 Implementasi antarmuka untuk fitur manajemen Anggota / Pengguna di sisi Admin (`/admin/anggota`). Fitur ini memungkinkan admin untuk mengawasi seluruh basis pengguna, mengubah profil pengguna, serta mengelola kontrol akses dan status akun (seperti mengubah *role* menjadi admin atau memblokir pengguna).
 
 ## Status Implementasi
-- **Status:** Selesai
+- **Status:** Selesai (Diperbarui dengan sintaks Tabel V4)
 - **Tanggal:** 1 Juli 2026
 
 ## Komponen yang Diimplementasikan
 
 ### 1. Definisi Tipe dan Skema Validasi
 - **File:** `client/shared/types/users.ts` & `client/shared/schemas/users.schema.ts`
-- **Tujuan:** Mendefinisikan antarmuka tipe TypeScript yang setara dengan representasi data dari Go Backend, serta membuat skema validasi Zod untuk proses mutasi data.
-- **Detail Skema:** Memvalidasi opsional field seperti `full_name` (min 1, max 100), `username` (min 3, max 50), `email`, `phone_number` (max 20), dan enum untuk `status` (ACTIVE, INACTIVE, BLOCKED).
+- **Tujuan:** Mendefinisikan antarmuka tipe TypeScript serta membuat skema validasi Zod untuk proses mutasi data.
+- **Detail Skema:** Memvalidasi form profil seperti `full_name`, `username`, `email`, `phone_number`, dan enum untuk `status` (ACTIVE, INACTIVE, BLOCKED).
 
 ### 2. API Proxy (Nitro Server)
 Membangun router proxy aman untuk memfasilitasi fungsionalitas Admin.
@@ -22,14 +22,15 @@ Membangun router proxy aman untuk memfasilitasi fungsionalitas Admin.
 
 ### 3. State Management & API Hook (Vue Query)
 - **File:** `client/app/composables/useUsers.ts`
-- **Fungsi:** Membungkus konektivitas ke Nitro Proxy ke dalam komposisi Vue. Hook `useUsers` kini mampu bereaksi terhadap perubahan `Ref` untuk `page`, `limit`, `search`, serta `role`. Mutasi (`updateMutation` dan `deleteMutation`) diatur agar otomatis men-*trigger* penyegaran daftar anggota (*invalidation query*) saat operasi selesai, disertai *Toast* pemberitahuan interaktif.
+- **Fungsi:** Membungkus konektivitas ke Nitro Proxy ke dalam komposisi Vue (bereaksi terhadap perubahan variabel *filtering* `page`, `limit`, `search`, serta `role`).
 
 ### 4. Antarmuka Halaman Admin (UI)
 - **File:** `client/app/pages/admin/anggota/index.vue`
-- **Komponen Inti (Nuxt UI v4 style):**
-  - **`UTable`**: Daftar pengguna komprehensif, mencakup *Badge* (*UBadge*) dinamis yang mewarnai status pengguna (Hijau: Aktif, Kuning: Non-aktif, Merah: Diblokir).
-  - **Sistem Penyaringan Ganda**: Mencakup kolom pencarian (*search bar*) dan filter khusus `USelect` untuk peran pengguna (Semua, Admin, Anggota).
-  - **Manajemen Profil (`UModal` & `UForm`)**: *Modal edit* komprehensif di mana admin dapat langsung mengubah informasi kontak atau memberikan pemblokiran akses melalui *dropdown status*. Sistem memanfaatkan *grid layout* (`grid-cols-2`) untuk membuat tampilan form tetap padat namun efisien.
+- **Perubahan Terbaru (Nuxt UI v4 Alignment):**
+  - **`UTable` Sintaks Baru**: Kolom kini diatur menggunakan `accessorKey` secara eksplisit, dan struktur templat yang tadinya menggunakan `-data` kini beralih menggunakan *slot* `-cell` untuk menyesuaikan standar tabel yang baru.
+  - **Form Terpadu (`UFormField` & `USelect`)**: Implementasi formulir `UFormField` dengan `USelect` berbasis `items` alih-alih `options` demi integrasi form reaktif yang lebih bersih.
+  - **Sistem Penyaringan Ganda**: Mencakup kolom pencarian (*search bar*) dan filter khusus `USelect` untuk peran pengguna.
+  - **Manajemen Profil Terpusat (`UModal`)**: Semua aksi utama seperti pengubahan profil (`Edit`) dan pembatalan akun (`Delete`) berjalan lancar di dalam dialog Modal (*in-place*) agar pengalaman admin tidak terganggu oleh *re-routing* yang tidak perlu.
 
 ## Kesimpulan
-Bagian Manajemen Pengguna (Anggota) kini beroperasi penuh. Pendekatan modular dipertahankan dengan memisahkan *backend payload validation* di *shared schemas* dan memanfaatkan *Vue Query hooks* untuk aliran data yang sangat responsif, sehingga memberikan Admin kendali yang stabil serta tampilan (*user experience*) yang bersih. Seluruh implementasi telah diselesaikan tanpa menyisakan komentar tambahan di dalam basis kode, selaras dengan ketentuan yang ditetapkan.
+Sistem manajemen Anggota beroperasi penuh. Struktur tabel telah dirombak mengikuti pendekatan penamaan slot tabel terbaru yang seragam di seluruh aplikasi. Mutasi berjalan reaktif menggunakan Vue Query, memberikan antarmuka solid untuk mengamankan data pengguna di platform literasiku. Seluruh kode dipastikan konsisten dan bersih.

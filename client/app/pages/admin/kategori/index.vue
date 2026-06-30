@@ -197,7 +197,7 @@ const toggleDeleteModal = (category: CategoryResponse) => {
                 label="Batal"
                 color="neutral"
                 variant="ghost"
-                @click="confirmDelete(deleteTarget as CategoryResponse)"
+                @click="toggleDeleteModal(deleteTarget as CategoryResponse)"
               />
               <UButton
                 label="Simpan"
