@@ -181,31 +181,33 @@ const toggleIsReturnOpen = () => {
       </div>
     </UCard>
 
-    <UModal v-model="isReturnOpen">
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <h3 class="text-base font-semibold leading-6 text-default">
-              Proses Pengembalian Buku
-            </h3>
-            <UButton color="neutral" variant="ghost" icon="i-lucide-x" class="-my-1" @click="toggleIsReturnOpen" />
-          </div>
-        </template>
+    <UModal v-model:open="isReturnOpen">
+      <template #content>
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-semibold leading-6 text-default">
+                Proses Pengembalian Buku
+              </h3>
+              <UButton color="neutral" variant="ghost" icon="i-lucide-x" class="-my-1" @click="toggleIsReturnOpen" />
+            </div>
+          </template>
 
-        <div class="space-y-4">
-          <p class="text-sm text-muted">Secara default, buku akan dikembalikan sesuai tanggal hari ini. Anda dapat menyesuaikan tanggal pengembalian jika buku dikembalikan di masa lalu.</p>
-          <UFormField label="Tanggal Dikembalikan">
-            <UInput type="date" v-model="returnDateInput" />
-          </UFormField>
-        </div>
-
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <UButton label="Batal" color="neutral" variant="ghost" @click="toggleIsReturnOpen" />
-            <UButton label="Konfirmasi" color="primary" @click="submitReturn" :loading="returnPhysicalMutation.isPending.value" />
+          <div class="space-y-4">
+            <p class="text-sm text-muted">Secara default, buku akan dikembalikan sesuai tanggal hari ini. Anda dapat menyesuaikan tanggal pengembalian jika buku dikembalikan di masa lalu.</p>
+            <UFormField label="Tanggal Dikembalikan">
+              <UInput type="date" v-model="returnDateInput" />
+            </UFormField>
           </div>
-        </template>
-      </UCard>
+
+          <template #footer>
+            <div class="flex justify-end gap-3">
+              <UButton label="Batal" color="neutral" variant="ghost" @click="toggleIsReturnOpen" />
+              <UButton label="Konfirmasi" color="primary" @click="submitReturn" :loading="returnPhysicalMutation.isPending.value" />
+            </div>
+          </template>
+        </UCard>
+      </template>
     </UModal>
   </div>
 </template>
