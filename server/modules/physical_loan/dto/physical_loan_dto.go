@@ -16,9 +16,11 @@ type PayFineRequest struct {
 }
 
 type LoanResponse struct {
-	ID          uint       `json:"id"`
-	UserID      uint       `json:"user_id"`
-	BookID      uint       `json:"book_id"`
+	ID           uint       `json:"id"`
+	UserID       uint       `json:"user_id"`
+	UserFullName string     `json:"user_full_name"`
+	Username     string     `json:"username"`
+	BookID       uint       `json:"book_id"`
 	BookTitle   string     `json:"book_title"`
 	BorrowDate  time.Time  `json:"borrow_date"`
 	DueDate     time.Time  `json:"due_date"`

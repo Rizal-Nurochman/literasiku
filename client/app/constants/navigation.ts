@@ -96,11 +96,6 @@ export const NAV_SIDEBAR_USER=[
     to: '/dashboard/katalog'
   },
   {
-    label: 'Peminjaman Saya',
-    icon: 'i-lucide-book-copy',
-    to: '/dashboard/peminjaman'
-  },
-  {
     label: 'Riwayat',
     icon: 'i-lucide-history',
     to: '/dashboard/riwayat'

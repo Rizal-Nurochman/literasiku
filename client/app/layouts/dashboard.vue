@@ -14,8 +14,6 @@ const initials = computed(() => {
     .substring(0, 2)
 })
 
-
-
 const dropdownItems = computed(() => NAV_USER(user, logoutMutation))
 
 </script>

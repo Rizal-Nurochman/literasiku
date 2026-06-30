@@ -176,6 +176,10 @@ func toLoanResponse(l *entities.DigitalLoan) dto.DigitalLoanResponse {
 		AccessStatus: l.AccessStatus,
 		CreatedAt:    l.CreatedAt,
 	}
+	if l.User.ID != 0 {
+		res.UserFullName = l.User.FullName
+		res.Username = l.User.Username
+	}
 	if l.Book.ID != 0 {
 		res.BookTitle = l.Book.Title
 	}

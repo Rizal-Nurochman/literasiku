@@ -6,6 +6,7 @@ import type { Ref } from 'vue'
 export const useUsers = (params?: { page?: Ref<number>, limit?: Ref<number>, search?: Ref<string>, role?: Ref<string> }) => {
   const queryClient = useQueryClient()
   const toast = useToast()
+  const fetch = useRequestFetch()
 
   const queryKey = computed(() => ['users', params?.page?.value, params?.limit?.value, params?.search?.value, params?.role?.value])
 
@@ -18,17 +19,17 @@ export const useUsers = (params?: { page?: Ref<number>, limit?: Ref<number>, sea
       if (params?.search?.value) searchParams.set('search', params.search.value)
       if (params?.role?.value) searchParams.set('role', params.role.value)
       
-      return $fetch<UsersResponse>(`/api/users?${searchParams.toString()}`)
+      return fetch<UsersResponse>(`/api/users?${searchParams.toString()}`)
     }
   })
 
   const useMeQuery = () => useQuery({
     queryKey: ['users', 'me'],
-    queryFn: () => $fetch<UserResponse>('/api/users/me')
+    queryFn: () => fetch<UserResponse>('/api/users/me')
   })
 
   const updateMeMutation = useMutation({
-    mutationFn: (data: UpdateUserInput) => $fetch<UserResponse>('/api/users/me', {
+    mutationFn: (data: UpdateUserInput) => fetch<UserResponse>('/api/users/me', {
       method: 'PATCH',
       body: data
     }),
@@ -42,7 +43,7 @@ export const useUsers = (params?: { page?: Ref<number>, limit?: Ref<number>, sea
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number, data: UpdateUserInput }) => $fetch<UserResponse>(`/api/users/${id}`, {
+    mutationFn: ({ id, data }: { id: number, data: UpdateUserInput }) => fetch<UserResponse>(`/api/users/${id}`, {
       method: 'PATCH',
       body: data
     }),
@@ -56,7 +57,7 @@ export const useUsers = (params?: { page?: Ref<number>, limit?: Ref<number>, sea
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => $fetch(`/api/users/${id}`, {
+    mutationFn: (id: number) => fetch(`/api/users/${id}`, {
       method: 'DELETE'
     }),
     onSuccess: () => {
