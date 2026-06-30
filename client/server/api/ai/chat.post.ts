@@ -1,27 +1,24 @@
-import { pipeline, env, type FeatureExtractionPipeline } from '@huggingface/transformers'
 import { Pinecone } from '@pinecone-database/pinecone'
 import { ChatOpenAI } from '@langchain/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { StringOutputParser } from '@langchain/core/output_parsers'
 import { throwError } from '~~/server/utils/apiCall'
 
-env.allowLocalModels = true
-env.useBrowserCache = false
-
-let extractor: FeatureExtractionPipeline | null = null
-
-async function getExtractor() {
-  if (!extractor) {
-    extractor = await pipeline(
-      'feature-extraction',
-      'Xenova/all-MiniLM-L6-v2',
-      {
-        dtype: 'q8'
-      }
-    )
+async function getCloudEmbeddings(inputs: string | string[], hfToken: string) {
+  const url = 'https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2'
+  try {
+    const res = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${hfToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ inputs })
+    })
+    return res
+  } catch (err: any) {
+    throw new Error(`Gagal memanggil Hugging Face Cloud Inference API: ${err.message}`)
   }
-
-  return extractor
 }
 
 export default defineEventHandler(async (event) => {
@@ -36,12 +33,7 @@ export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig(event)
 
-  const model = await getExtractor()
-
-  const embedding = await model(body.query, {
-    pooling: 'mean',
-    normalize: true
-  })
+  const embedding = await getCloudEmbeddings(body.query, config.huggingfaceApiKey)
 
   const pinecone = new Pinecone({
     apiKey: config.pineconeApiKey
@@ -52,7 +44,7 @@ export default defineEventHandler(async (event) => {
   const result = await index
     .namespace(config.pineconeNamespace)
     .query({
-      vector: Array.from(embedding.data),
+      vector: Array.from(embedding),
       topK: Number(config.ragMaxReferences ?? 5),
       filter: {
         bookId: {

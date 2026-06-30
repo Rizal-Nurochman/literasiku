@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DashboardBackground from '~/components/layout/DashboardBackground.vue'
 import ThemeModeToggle from '~/components/layout/ThemeModeToggle.vue'
+import AIAssistant from '~/components/layout/AIAssistant.vue'
 import { NAV_SIDEBAR_ADMIN, NAV_USER } from '~/constants/navigation'
 
 const { user, logoutMutation } = useAuth()
@@ -107,5 +108,6 @@ watch(
         <slot />
       </main>
     </div>
+    <AIAssistant />
   </UDashboardGroup>
 </template>

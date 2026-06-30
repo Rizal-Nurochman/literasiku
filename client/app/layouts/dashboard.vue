@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DashboardBackground from '~/components/layout/DashboardBackground.vue'
 import ThemeModeToggle from '~/components/layout/ThemeModeToggle.vue'
+import AIAssistant from '~/components/layout/AIAssistant.vue'
 import { NAV_SIDEBAR_USER, NAV_USER } from '~/constants/navigation'
 
 const { user, logoutMutation, } = useAuth()
@@ -90,5 +91,6 @@ const dropdownItems = computed(() => NAV_USER(user, logoutMutation))
         <slot />
       </main>
     </div>
+    <AIAssistant />
   </UDashboardGroup>
 </template>

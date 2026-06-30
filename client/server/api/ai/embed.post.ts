@@ -1,26 +1,23 @@
-import { pipeline, env, type FeatureExtractionPipeline } from '@huggingface/transformers'
 import { Pinecone } from '@pinecone-database/pinecone'
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters'
 import { PDFParse } from 'pdf-parse'
 import { throwError } from '~~/server/utils/apiCall'
 
-env.allowLocalModels = true
-env.useBrowserCache = false
-
-let extractor: FeatureExtractionPipeline | null = null
-
-async function getExtractor() {
-  if (!extractor) {
-    extractor = await pipeline(
-      'feature-extraction',
-      'Xenova/all-MiniLM-L6-v2',
-      {
-        dtype: 'q8'
-      }
-    )
+async function getCloudEmbeddings(inputs: string | string[], hfToken: string) {
+  const url = 'https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2'
+  try {
+    const res = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${hfToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ inputs })
+    })
+    return res
+  } catch (err: any) {
+    throw new Error(`Gagal memanggil Hugging Face Cloud Inference API: ${err.message}`)
   }
-
-  return extractor
 }
 
 export default defineEventHandler(async (event) => {
@@ -36,11 +33,12 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   const pineconeApiKey = config.pineconeApiKey
   const pineconeIndexName = config.pineconeIndexName
+  const hfToken = config.huggingfaceApiKey
   
-  if (!pineconeApiKey || !pineconeIndexName) {
+  if (!pineconeApiKey || !pineconeIndexName || !hfToken) {
     throwError({
       statusCode: 500,
-      statusMessage: 'Pinecone configuration is missing'
+      statusMessage: 'Pinecone or Hugging Face configuration is missing'
     })
   }
   
@@ -77,32 +75,28 @@ export default defineEventHandler(async (event) => {
       const chunks = await splitter.createDocuments([text])
       console.log(`[AI Embed] Created ${chunks.length} chunks.`)
       
-      const model = await getExtractor()
       const pinecone = new Pinecone({ apiKey: pineconeApiKey })
       const index = pinecone.index(pineconeIndexName).namespace(config.pineconeNamespace || 'default')
       
-      console.log(`[AI Embed] Embedding & Uploading to Pinecone...`)
+      console.log(`[AI Embed] Embedding & Uploading to Pinecone via Hugging Face Cloud...`)
       
-      const batchSize = 50
+      const batchSize = 25
       for (let i = 0; i < chunks.length; i += batchSize) {
         const batch = chunks.slice(i, i + batchSize)
+        const texts = batch.map(chunk => chunk.pageContent)
         
-        const vectors = await Promise.all(batch.map(async (chunk, chunkIdx) => {
-          const content = chunk.pageContent
-          const embedding = await model(content, {
-            pooling: 'mean',
-            normalize: true
-          })
-          
+        const embeddings = await getCloudEmbeddings(texts, hfToken)
+        
+        const vectors = batch.map((chunk, chunkIdx) => {
           return {
             id: `book-${body.bookId}-chunk-${i + chunkIdx}`,
-            values: Array.from(embedding.data),
+            values: embeddings[chunkIdx],
             metadata: {
               bookId: body.bookId,
-              text: content
+              text: chunk.pageContent
             }
           }
-        }))
+        })
         
         await index.upsert({ records: vectors })
         console.log(`[AI Embed] Upserted batch ${i / batchSize + 1} / ${Math.ceil(chunks.length / batchSize)}`)
