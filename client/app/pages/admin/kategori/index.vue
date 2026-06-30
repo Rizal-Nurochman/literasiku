@@ -1,194 +1,214 @@
 <script setup lang="ts">
-import { createCategorySchema, type CreateCategoryInput, type UpdateCategoryInput } from '#shared/schemas/categories.schema'
 import type { CategoryResponse } from '#shared/types/categories'
+import { createCategorySchema } from '#shared/schemas/categories.schema'
 
 definePageMeta({
   layout: 'admin'
 })
 
+const router = useRouter()
 const page = ref(1)
 const limit = ref(10)
 const search = ref('')
-const searchInput = ref('')
 
-const { 
-  categories, 
-  total, 
-  isLoading, 
-  createMutation, 
-  updateMutation, 
-  deleteMutation 
-} = useCategories({
-  page: page.value,
-  limit: limit.value,
-  search: search.value
-})
-
-watch(page, () => {
+const { categories, total, totalPages, isLoading, deleteMutation, createMutation } = useCategories({
+  page,
+  limit,
+  search
 })
 
 const columns = [
-  { key: 'id', label: 'ID' },
-  { key: 'name', label: 'Nama Kategori' },
-  { key: 'created_at', label: 'Dibuat Pada' },
-  { key: 'actions', label: 'Aksi' }
+  { accessorKey: 'id', header: 'ID' },
+  { accessorKey: 'name', header: 'Nama Kategori' },
+  { accessorKey: 'description', header: 'Deskripsi' },
+  { id: 'actions', header: 'Aksi' }
 ]
 
-const isCreateModalOpen = ref(false)
-const isEditModalOpen = ref(false)
-const isDeleteModalOpen = ref(false)
+const deleteTarget = ref<CategoryResponse | null>(null)
+const showDeleteModal = ref(false)
 
-const selectedCategory = ref<CategoryResponse | null>(null)
+const confirmDelete = (category: CategoryResponse) => {
+  deleteTarget.value = category
+  showDeleteModal.value = true
+}
 
-const state = reactive({
+const executeDelete = () => {
+  if (!deleteTarget.value) return
+  deleteMutation.mutate(deleteTarget.value.id, {
+    onSuccess: () => {
+      showDeleteModal.value = false
+      deleteTarget.value = null
+    }
+  })
+}
+
+const showCreateModal = ref(false)
+const createState = reactive({
   name: ''
 })
 
-const openCreateModal = () => {
-  state.name = ''
-  isCreateModalOpen.value = true
+const goToCreate = () => {
+  createState.name = ''
+  showCreateModal.value = true
 }
 
-const openEditModal = (category: CategoryResponse) => {
-  selectedCategory.value = category
-  state.name = category.name
-  isEditModalOpen.value = true
-}
-
-const openDeleteModal = (category: CategoryResponse) => {
-  selectedCategory.value = category
-  isDeleteModalOpen.value = true
-}
-
-const onSearch = () => {
-  search.value = searchInput.value
-  page.value = 1
-}
-
-const onSubmitCreate = async () => {
-  await createMutation.mutateAsync({ name: state.name })
-  isCreateModalOpen.value = false
-}
-
-const onSubmitEdit = async () => {
-  if (!selectedCategory.value) return
-  await updateMutation.mutateAsync({ id: selectedCategory.value.id, data: { name: state.name } })
-  isEditModalOpen.value = false
-}
-
-const onConfirmDelete = async () => {
-  if (!selectedCategory.value) return
-  await deleteMutation.mutateAsync(selectedCategory.value.id)
-  isDeleteModalOpen.value = false
-}
-
-const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+const executeCreate = () => {
+  createMutation.mutate({ name: createState.name }, {
+    onSuccess: () => {
+      showCreateModal.value = false
+    }
   })
+}
+
+const goToEdit = (id: number) => {
+  router.push(`/admin/kategori/${id}/edit`)
+}
+
+const toggleDeleteModal = (category: CategoryResponse) => {
+  deleteTarget.value = category
+  showDeleteModal.value = !showDeleteModal.value
 }
 </script>
 
 <template>
   <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">Manajemen Kategori</h1>
-      <UButton color="primary" icon="i-lucide-plus" @click="openCreateModal">Tambah Kategori</UButton>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">Manajemen Kategori</h1>
+        <p class="text-sm text-muted mt-1">
+          Kelola kategori buku perpustakaan
+        </p>
+      </div>
+      <UButton
+        icon="i-lucide-plus"
+        label="Tambah Kategori"
+        color="primary"
+        size="md"
+        @click="goToCreate"
+      />
     </div>
 
     <UCard>
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-2">
-          <UInput 
-            v-model="searchInput" 
-            icon="i-lucide-search" 
-            placeholder="Cari kategori..." 
-            @keyup.enter="onSearch"
-          />
-          <UButton color="gray" @click="onSearch">Cari</UButton>
-        </div>
+      <div class="flex flex-col sm:flex-row gap-3 mb-4">
+        <UInput
+          v-model="search"
+          icon="i-lucide-search"
+          placeholder="Cari kategori..."
+          class="flex-1"
+          size="md"
+        />
       </div>
 
-      <UTable 
-        :columns="columns" 
-        :rows="categories" 
+      <UTable
+        :columns="columns"
+        :data="categories"
         :loading="isLoading"
+        class="w-full"
       >
-        <template #created_at-data="{ row }">
-          {{ formatDate(row.created_at) }}
-        </template>
-        <template #actions-data="{ row }">
-          <div class="flex items-center gap-2">
-            <UButton size="sm" color="warning" variant="soft" icon="i-lucide-edit" @click="openEditModal(row)" />
-            <UButton size="sm" color="error" variant="soft" icon="i-lucide-trash" @click="openDeleteModal(row)" />
+        <template #actions-cell="{ row }">
+          <div class="flex items-center gap-1">
+            <UTooltip text="Edit">
+              <UButton
+                icon="i-lucide-pencil"
+                variant="ghost"
+                color="neutral"
+                size="xs"
+                @click="() => goToEdit(row.original.id)"
+              />
+            </UTooltip>
+            <UTooltip text="Hapus">
+              <UButton
+                icon="i-lucide-trash-2"
+                variant="ghost"
+                color="error"
+                size="xs"
+                @click="() => confirmDelete(row.original)"
+              />
+            </UTooltip>
           </div>
         </template>
-        <template #empty-state>
+
+        <template #empty>
           <div class="flex flex-col items-center justify-center py-6 text-gray-500">
-            <UIcon name="i-lucide-inbox" class="w-12 h-12 mb-2 opacity-50" />
-            <p>Tidak ada data kategori ditemukan.</p>
+            <UIcon name="i-lucide-layers" class="w-12 h-12 mb-2 opacity-50" />
+            <p>Tidak ada kategori ditemukan.</p>
           </div>
         </template>
       </UTable>
 
       <div class="flex justify-end mt-4" v-if="total > 0">
-        <UPagination 
-          v-model="page" 
-          :page-count="limit" 
-          :total="total" 
+        <UPagination
+          v-model:page="page"
+          :total="total"
+          :items-per-page="limit"
         />
       </div>
     </UCard>
 
-    <UModal v-model="isCreateModalOpen">
-      <UCard>
-        <template #header>
-          <h3 class="text-lg font-semibold">Tambah Kategori</h3>
-        </template>
-        <UForm :schema="createCategorySchema" :state="state" @submit="onSubmitCreate" class="space-y-4">
-          <UFormGroup label="Nama Kategori" name="name">
-            <UInput v-model="state.name" placeholder="Masukkan nama kategori" />
-          </UFormGroup>
-          <div class="flex justify-end gap-2 mt-6">
-            <UButton color="gray" variant="ghost" @click="isCreateModalOpen = false">Batal</UButton>
-            <UButton type="submit" color="primary" :loading="createMutation.isPending.value">Simpan</UButton>
+    <UModal v-model:open="showDeleteModal">
+      <template #content>
+        <div class="p-6 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="rounded-full bg-red-100 dark:bg-red-900/30 p-2.5">
+              <UIcon name="i-lucide-alert-triangle" class="size-5 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <h3 class="font-semibold text-lg">Hapus Kategori</h3>
+              <p class="text-sm text-muted">Tindakan ini tidak dapat dibatalkan</p>
+            </div>
           </div>
-        </UForm>
-      </UCard>
+
+          <p class="text-sm">
+            Apakah Anda yakin ingin menghapus kategori
+            <strong>"{{ deleteTarget?.name }}"</strong>?
+          </p>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <UButton
+              label="Batal"
+              variant="ghost"
+              color="neutral"
+              @click="confirmDelete(deleteTarget as CategoryResponse)"
+            />
+            <UButton
+              label="Hapus"
+              color="error"
+              icon="i-lucide-trash-2"
+              :loading="deleteMutation.isPending.value"
+              @click="executeDelete"
+            />
+          </div>
+        </div>
+      </template>
     </UModal>
 
-    <UModal v-model="isEditModalOpen">
-      <UCard>
-        <template #header>
-          <h3 class="text-lg font-semibold">Edit Kategori</h3>
-        </template>
-        <UForm :schema="createCategorySchema" :state="state" @submit="onSubmitEdit" class="space-y-4">
-          <UFormGroup label="Nama Kategori" name="name">
-            <UInput v-model="state.name" placeholder="Masukkan nama kategori" />
-          </UFormGroup>
-          <div class="flex justify-end gap-2 mt-6">
-            <UButton color="gray" variant="ghost" @click="isEditModalOpen = false">Batal</UButton>
-            <UButton type="submit" color="primary" :loading="updateMutation.isPending.value">Simpan Perubahan</UButton>
-          </div>
-        </UForm>
-      </UCard>
-    </UModal>
-
-    <UModal v-model="isDeleteModalOpen">
-      <UCard>
-        <template #header>
-          <h3 class="text-lg font-semibold text-red-500">Hapus Kategori</h3>
-        </template>
-        <p>Apakah Anda yakin ingin menghapus kategori <strong>{{ selectedCategory?.name }}</strong>? Tindakan ini tidak dapat dibatalkan.</p>
-        <template #footer>
-          <div class="flex justify-end gap-2">
-            <UButton color="gray" variant="ghost" @click="isDeleteModalOpen = false">Batal</UButton>
-            <UButton color="error" :loading="deleteMutation.isPending.value" @click="onConfirmDelete">Hapus</UButton>
-          </div>
-        </template>
-      </UCard>
+    <UModal v-model:open="showCreateModal">
+      <template #content>
+        <UCard>
+          <template #header>
+            <h3 class="text-lg font-semibold">Tambah Kategori</h3>
+          </template>
+          <UForm :schema="createCategorySchema" :state="createState" @submit="executeCreate" class="space-y-4">
+            <UFormField label="Nama Kategori" name="name">
+              <UInput v-model="createState.name" placeholder="Masukkan nama kategori" autofocus />
+            </UFormField>
+            <div class="flex justify-end gap-2 mt-6">
+              <UButton
+                label="Batal"
+                color="neutral"
+                variant="ghost"
+                @click="confirmDelete(deleteTarget as CategoryResponse)"
+              />
+              <UButton
+                label="Simpan"
+                type="submit"
+                color="primary"
+                :loading="createMutation.isPending.value"
+              />
+            </div>
+          </UForm>
+        </UCard>
+      </template>
     </UModal>
   </div>
 </template>

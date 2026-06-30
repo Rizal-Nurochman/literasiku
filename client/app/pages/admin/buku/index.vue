@@ -132,7 +132,7 @@ const toggleModal = async () => {
         label="Tambah Buku"
         color="primary"
         size="md"
-        @click="() => "
+        @click="goToCreate"
       />
     </div>
 
