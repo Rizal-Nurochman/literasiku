@@ -294,8 +294,23 @@ Nama pengguna: ${user.full_name} (@${user.username}).
 Aturan penting:
 1. Hanya gunakan informasi yang diperoleh dari tools untuk menjawab pertanyaan mengenai buku, peminjaman, atau anggota.
 2. Jika memanggil tool search_book_content, pastikan mendapatkan bookId yang valid terlebih dahulu menggunakan list_books jika belum diketahui.
-3. Saat merekomendasikan buku atau menyajikan sitasi dari buku digital, Anda wajib menyertakan link tautan aksi dengan format Markdown: [Lihat Detail Buku](/dashboard/katalog/${user.role === 'ADMIN' ? 'admin' : '<bookId>'}) atau gunakan ID spesifik buku. Jika link buku digital untuk user gunakan format [/dashboard/katalog/<bookId>]. Jika untuk admin gunakan format [/admin/buku]. Link ini akan otomatis dirender sebagai tombol aksi.
-4. Anda harus selalu menyertakan teks sitasi secara eksplisit (contoh: "Kutipan dari Buku ID <bookId>...") pada bagian akhir atau bagian relevan dari jawaban Anda jika menggunakan informasi dari isi buku (RAG system).
+3. Anda memiliki daftar rute halaman riil yang valid untuk dibuat sebagai tautan aksi Markdown. JANGAN PERNAH MENEBAK ATAU MEMBUAT RUTE LAIN di luar daftar ini:
+   - Jika peran pengguna saat ini adalah USER:
+     * Halaman Dashboard Utama: [/dashboard] (Gunakan label seperti [Buka Dashboard](/dashboard))
+     * Halaman Katalog Buku: [/dashboard/katalog] (Gunakan label seperti [Lihat Katalog Buku](/dashboard/katalog))
+     * Halaman Detail Buku Spesifik: [/dashboard/katalog/<bookId>] (Gunakan label seperti [Lihat Detail Buku](/dashboard/katalog/<bookId>) - pastikan <bookId> berupa ID angka yang valid dari database)
+     * Halaman Riwayat Peminjaman: [/dashboard/riwayat] (Gunakan label seperti [Lihat Riwayat Peminjaman](/dashboard/riwayat))
+     * Halaman Membaca Buku Digital: [/dashboard/riwayat/baca/<bookId>] (Gunakan label seperti [Baca Buku Digital](/dashboard/riwayat/baca/<bookId>))
+     * Halaman Profil Akun: [/dashboard/profil] (Gunakan label seperti [Buka Profil Saya](/dashboard/profil))
+   - Jika peran pengguna saat ini adalah ADMIN:
+     * Halaman Dashboard Admin: [/admin] (Gunakan label seperti [Buka Dashboard Admin](/admin))
+     * Halaman Kelola Buku: [/admin/buku] (Gunakan label seperti [Kelola Buku](/admin/buku))
+     * Halaman Kelola Anggota: [/admin/anggota] (Gunakan label seperti [Kelola Anggota](/admin/anggota))
+     * Halaman Kelola Kategori Buku: [/admin/kategori] (Gunakan label seperti [Kelola Kategori](/admin/kategori))
+     * Halaman Kelola Transaksi Peminjaman: [/admin/peminjaman] (Gunakan label seperti [Kelola Peminjaman](/admin/peminjaman))
+     * Halaman Kelola Denda Anggota: [/admin/denda] (Gunakan label seperti [Kelola Denda](/admin/denda))
+     * Halaman Laporan & Statistik: [/admin/laporan] (Gunakan label seperti [Lihat Laporan](/admin/laporan))
+4. Anda harus selalu menyertakan teks sitasi secara eksplisit (contoh: "(Sitasi: Buku ID <bookId>)") pada bagian akhir atau bagian relevan dari jawaban Anda jika menggunakan informasi dari isi buku (RAG system).
 5. Jawab pertanyaan dengan ramah dan profesional dalam Bahasa Indonesia.`
 
     const messages: any[] = [
@@ -319,10 +334,10 @@ Aturan penting:
 
     while (loopCount < maxLoops) {
       const response = await llm.invoke(messages)
-      messages.push(response)
 
       const toolCalls = response.additional_kwargs?.tool_calls
       if (toolCalls && toolCalls.length > 0) {
+        messages.push(response)
         for (const toolCall of toolCalls) {
           const toolName = toolCall.function.name
           const toolArgs = JSON.parse(toolCall.function.arguments || '{}')
@@ -372,6 +387,12 @@ Aturan penting:
     const stream = await finalLlm.stream(messages)
     for await (const chunk of stream) {
       const token = chunk.content
+      const additional = chunk.additional_kwargs as any
+      const reasoning = additional?.reasoning_content || additional?.thinking || ''
+
+      if (reasoning) {
+        sendSSE('reasoning', { token: reasoning })
+      }
       if (token) {
         sendSSE('token', { token })
       }

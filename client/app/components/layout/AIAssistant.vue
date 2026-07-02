@@ -3,59 +3,99 @@ import { ref, computed, watch } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'isomorphic-dompurify'
 
+interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+  reasoning?: string
+  isReasoningExpanded?: boolean
+  toolCalls?: Array<{ name: string; status: 'running' | 'done' }>
+  isExpanded?: boolean
+  isError?: boolean
+}
+
 const { useMeQuery } = useUsers()
 const { data: user } = useMeQuery()
 
 const isOpen = ref(false)
 const inputMessage = ref('')
-const messages = ref<Array<{ role: 'user' | 'assistant'; content: string }>>([])
+const messages = ref<ChatMessage[]>([])
 const isLoading = ref(false)
-
-const activeTool = ref<{ name: string; status: 'running' | 'done' } | null>(null)
 const streamStarted = ref(false)
 
 const recommendedQuestions = computed(() => {
   if (!user.value) return []
   if (user.value.role === 'ADMIN') {
     return [
-      'Tampilkan daftar semua transaksi peminjaman',
-      'Berapa total anggota aktif perpustakaan?',
-      'Buku digital apa saja yang tersedia?',
-      'Adakah denda yang belum dibayar saat ini?'
+      'Buka halaman manajemen buku perpustakaan',
+      'Di mana saya bisa melihat laporan & statistik bulanan?',
+      'Tampilkan seluruh riwayat transaksi peminjaman anggota',
+      'Bagaimana cara mengelola denda yang telat bayar?'
     ]
   }
   return [
-    'Tampilkan daftar peminjaman saya saat ini',
-    'Apakah saya memiliki denda yang belum dibayar?',
-    'Rekomendasikan buku fiksi yang tersedia',
-    'Bagaimana cara meminjam buku digital?'
+    'Bagaimana cara melihat daftar katalog buku?',
+    'Di mana saya bisa melihat riwayat peminjaman buku saya?',
+    'Tampilkan buku digital yang bisa langsung dibaca',
+    'Saya ingin memperbarui informasi profil saya'
   ]
 })
 
-const currentToolLabel = computed(() => {
-  if (!activeTool.value) return ''
-  const name = activeTool.value.name
+const getFriendlyToolLabel = (name: string) => {
   if (name === 'list_books') return 'Mencari koleksi katalog perpustakaan...'
   if (name === 'search_book_content') return 'Membaca & menganalisis isi buku digital (RAG)...'
   if (name === 'my_loans') return 'Mengambil riwayat transaksi peminjaman Anda...'
   if (name === 'all_loans') return 'Mengambil seluruh data peminjaman di perpustakaan...'
   if (name === 'list_members') return 'Mencari data profil anggota perpustakaan...'
   return 'Sedang memproses permintaan...'
-})
+}
 
-const currentToolIcon = computed(() => {
-  if (!activeTool.value) return 'i-lucide-loader-2'
-  const name = activeTool.value.name
-  if (name === 'list_books') return 'i-lucide-book-open'
-  if (name === 'search_book_content') return 'i-lucide-brain'
-  if (name === 'my_loans' || name === 'all_loans') return 'i-lucide-file-text'
-  if (name === 'list_members') return 'i-lucide-users'
-  return 'i-lucide-settings'
-})
+/**
+ * STOPGAP HEURISTIC — bukan solusi permanen.
+ * Backend idealnya mengirim `type: 'reasoning'` terpisah dari `type: 'token'`.
+ * Selama itu belum konsisten (tergantung apakah provider model mengekspos
+ * reasoning_content), fungsi ini mencoba mendeteksi titik di mana monolog
+ * internal berakhir dan jawaban resmi ke user dimulai, berdasarkan pola
+ * umum: paragraf pembuka bergaya "internal monologue" (sering berbahasa
+ * Inggris, menyebut "the user"/"pengguna", "I should"/"saya akan", dst),
+ * diikuti baris kosong lalu sapaan/jawaban resmi.
+ */
+const THINKING_OPENER = /^(the user|pengguna|user is asking|i should|i need to|i'll|i will|let me|berdasarkan|saya akan)\b/i
+
+const ANSWER_BOUNDARY_PATTERNS = [
+  /\n{2,}(?=(halo|baik|selamat|tentu|berikut|silakan|oke|ok)\b)/i,
+  /\n{2,}(?=\*\*)/,
+]
+
+function splitMergedContent(raw: string): { reasoning: string; content: string; stillThinking: boolean } {
+  if (!raw) return { reasoning: '', content: '', stillThinking: false }
+
+  for (const pattern of ANSWER_BOUNDARY_PATTERNS) {
+    const match = raw.match(pattern)
+    if (match && typeof match.index === 'number' && match.index > 0) {
+      return {
+        reasoning: raw.slice(0, match.index).trim(),
+        content: raw.slice(match.index).trim(),
+        stillThinking: false
+      }
+    }
+  }
+
+  if (THINKING_OPENER.test(raw.trim())) {
+    return { reasoning: raw.trim(), content: '', stillThinking: true }
+  }
+
+  return { reasoning: '', content: raw, stillThinking: false }
+}
+
+function getDisplayParts(msg: ChatMessage) {
+  if (msg.reasoning) {
+    return { reasoning: msg.reasoning, content: msg.content, stillThinking: false }
+  }
+  return splitMergedContent(msg.content)
+}
 
 const resetChat = () => {
   messages.value = []
-  activeTool.value = null
   streamStarted.value = false
   isLoading.value = false
 }
@@ -72,12 +112,19 @@ const sendMessage = async (text: string) => {
   const userQuery = text.trim()
   inputMessage.value = ''
   messages.value.push({ role: 'user', content: userQuery })
-  
+
   isLoading.value = true
   streamStarted.value = false
-  activeTool.value = null
 
-  const assistantMessage: { role: 'user' | 'assistant'; content: string } = { role: 'assistant', content: '' }
+  const assistantMessage: ChatMessage = {
+    role: 'assistant',
+    content: '',
+    reasoning: '',
+    isReasoningExpanded: true,
+    toolCalls: [],
+    isExpanded: true,
+    isError: false
+  }
   messages.value.push(assistantMessage)
 
   try {
@@ -118,14 +165,36 @@ const sendMessage = async (text: string) => {
           try {
             const data = JSON.parse(cleaned.substring(6))
             if (data.type === 'log') {
-              activeTool.value = { name: data.tool, status: data.status }
+              if (!assistantMessage.toolCalls) {
+                assistantMessage.toolCalls = []
+              }
+              const existing = assistantMessage.toolCalls.find(t => t.name === data.tool)
+              if (existing) {
+                existing.status = data.status
+              } else {
+                assistantMessage.toolCalls.push({ name: data.tool, status: data.status })
+              }
+            } else if (data.type === 'reasoning') {
+              if (assistantMessage.isReasoningExpanded === undefined) {
+                assistantMessage.isReasoningExpanded = true
+              }
+              assistantMessage.reasoning = (assistantMessage.reasoning || '') + data.token
             } else if (data.type === 'token') {
               streamStarted.value = true
-              activeTool.value = null
               assistantMessage.content += data.token
+
+              if (assistantMessage.reasoning) {
+                assistantMessage.isReasoningExpanded = false
+              } else {
+                const parts = splitMergedContent(assistantMessage.content)
+                if (!parts.stillThinking && parts.content) {
+                  assistantMessage.isReasoningExpanded = false
+                }
+              }
             } else if (data.type === 'done') {
               isLoading.value = false
             } else if (data.type === 'error') {
+              assistantMessage.isError = true
               assistantMessage.content = data.message || 'Terjadi kesalahan sistem.'
               isLoading.value = false
             }
@@ -134,9 +203,24 @@ const sendMessage = async (text: string) => {
       }
     }
   } catch (err: any) {
+    assistantMessage.isError = true
     assistantMessage.content = err.message || 'Koneksi gagal. Mohon pastikan Anda sudah masuk ke sistem.'
     isLoading.value = false
   }
+}
+
+const retryLastMessage = () => {
+  const reversed = [...messages.value].reverse()
+  const lastUserIndex = reversed.findIndex(m => m.role === 'user')
+  if (lastUserIndex === -1) return
+
+  const actualIndex = messages.value.length - 1 - lastUserIndex
+  const lastUserMsg = messages.value[actualIndex]
+  if (!lastUserMsg) return
+  const userQuery = lastUserMsg.content
+
+  messages.value = messages.value.slice(0, actualIndex)
+  sendMessage(userQuery)
 }
 
 const toggleIsAIOpen = () => {
@@ -199,45 +283,119 @@ const renderMarkdown = (text: string) => {
               </div>
             </div>
 
-            <div v-for="(msg, index) in messages" :key="index" class="flex flex-col gap-1">
+            <div v-for="(msg, index) in messages" :key="index" class="flex flex-col gap-2">
               <div
-                v-if="msg.content || (msg.role === 'assistant' && isLoading && !streamStarted && index === messages.length - 1)"
-                class="flex gap-2.5 max-w-[90%]"
-                :class="msg.role === 'user' ? 'ml-auto flex-row-reverse' : 'mr-auto'"
+                v-if="msg.role === 'user'"
+                class="flex gap-2.5 max-w-[90%] ml-auto flex-row-reverse"
+              >
+                <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold bg-primary text-white">
+                  <UIcon name="i-lucide-user" class="w-4 h-4" />
+                </div>
+                <div class="rounded-2xl px-4 py-2.5 text-xs shadow-sm leading-relaxed bg-primary text-white rounded-tr-none">
+                  {{ msg.content }}
+                </div>
+              </div>
+
+              <div
+                v-else
+                class="flex flex-col gap-2 max-w-[90%] mr-auto"
               >
                 <div
-                  class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
-                  :class="msg.role === 'user' ? 'bg-primary text-white' : 'bg-default-200 text-default'"
+                  v-if="msg.toolCalls && msg.toolCalls.length > 0"
+                  class="flex gap-2.5 opacity-70 hover:opacity-100 transition-opacity duration-200"
                 >
-                  <UIcon :name="msg.role === 'user' ? 'i-lucide-user' : 'i-lucide-bot'" class="w-4 h-4" />
+                  <div class="w-7 h-7 shrink-0 flex items-center justify-center text-xs text-muted">
+                    <UIcon name="i-lucide-activity" class="w-4 h-4 text-primary/70 animate-pulse" />
+                  </div>
+                  <div class="border border-dashed border-default-300 bg-default-50/60 rounded-xl overflow-hidden shadow-xs flex-1 min-w-[200px]">
+                    <button
+                      type="button"
+                      class="w-full flex items-center justify-between p-2 text-[10px] font-semibold text-muted hover:bg-default-100/50 transition-colors"
+                      @click="msg.isExpanded = !msg.isExpanded"
+                    >
+                      <span class="flex items-center gap-1.5">
+                        <UIcon v-if="msg.toolCalls.some(t => t.status === 'running')" name="i-lucide-loader-2" class="w-3 h-3 text-primary animate-spin" />
+                        <UIcon v-else name="i-lucide-check-circle" class="w-3 h-3 text-success" />
+                        Proses Berpikir Lixi ({{ msg.toolCalls.length }} langkah)
+                      </span>
+                      <UIcon :name="msg.isExpanded ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="w-3 h-3 transition-transform" />
+                    </button>
+                    <div v-show="msg.isExpanded" class="p-2 border-t border-default-200/50 space-y-1.5 text-[9px] bg-default-100/30">
+                      <div v-for="(tool, tIdx) in msg.toolCalls" :key="tIdx" class="flex items-center gap-2 text-muted-foreground">
+                        <UIcon
+                          :name="tool.status === 'running' ? 'i-lucide-loader-2 animate-spin text-primary' : 'i-lucide-check-circle-2 text-success'"
+                          class="w-3 h-3 shrink-0"
+                        />
+                        <span>{{ getFriendlyToolLabel(tool.name) }}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div
-                  v-if="msg.role === 'user'"
-                  class="rounded-2xl px-4 py-2.5 text-xs shadow-sm leading-relaxed bg-primary text-white rounded-tr-none"
+                  v-if="getDisplayParts(msg).reasoning"
+                  class="flex gap-2.5 opacity-60 hover:opacity-100 transition-opacity duration-200"
                 >
-                  {{ msg.content }}
+                  <div class="w-7 h-7 shrink-0 flex items-center justify-center text-xs text-muted">
+                    <UIcon name="i-lucide-brain" class="w-4 h-4 text-primary/70 animate-pulse" />
+                  </div>
+                  <div class="border border-dashed border-default-300 bg-default-50/50 rounded-xl overflow-hidden shadow-xs flex-1 min-w-[200px]">
+                    <button
+                      type="button"
+                      class="w-full flex items-center justify-between p-2 text-[10px] font-semibold text-muted hover:bg-default-100/50 transition-colors"
+                      @click="msg.isReasoningExpanded = !msg.isReasoningExpanded"
+                    >
+                      <span class="flex items-center gap-1.5">
+                        <UIcon v-if="getDisplayParts(msg).stillThinking && index === messages.length - 1" name="i-lucide-loader-2" class="w-3 h-3 text-primary animate-spin" />
+                        <UIcon v-else name="i-lucide-check-circle" class="w-3 h-3 text-success" />
+                        Analisis Internal Lixi
+                      </span>
+                      <UIcon :name="msg.isReasoningExpanded ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'" class="w-3 h-3 transition-transform" />
+                    </button>
+                    <div v-show="msg.isReasoningExpanded" class="p-2.5 border-t border-default-200/50 text-[10px] text-muted-foreground leading-relaxed bg-default-100/30 whitespace-pre-line italic">
+                      {{ getDisplayParts(msg).reasoning }}
+                    </div>
+                  </div>
                 </div>
-                
+
                 <div
-                  v-else
-                  class="rounded-2xl px-4 py-2.5 text-xs shadow-sm leading-relaxed bg-default-100 text-default border border-default rounded-tl-none markdown-content flex-1"
+                  v-if="getDisplayParts(msg).content || msg.isError || (isLoading && !streamStarted && index === messages.length - 1)"
+                  class="flex gap-2.5"
                 >
-                  <div v-if="msg.content" v-html="renderMarkdown(msg.content)" />
-                  
-                  <div v-if="isLoading && !streamStarted && index === messages.length - 1" class="mt-2 space-y-3">
-                    <div class="border border-primary/20 bg-primary/5 rounded-xl p-3 flex items-center gap-3 animate-pulse">
-                      <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                        <UIcon :name="currentToolIcon" class="w-5 h-5" />
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <p class="text-[10px] font-bold text-primary uppercase tracking-wider">
-                          {{ activeTool && activeTool.status === 'running' ? 'Lixi sedang bekerja' : 'Lixi merencanakan jawaban' }}
-                        </p>
-                        <p class="text-[11px] text-default truncate font-medium mt-0.5">
-                          {{ currentToolLabel }}
-                        </p>
-                      </div>
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold bg-default-200 text-default">
+                    <UIcon name="i-lucide-bot" class="w-4 h-4" />
+                  </div>
+                  <div class="rounded-2xl px-4 py-2.5 text-xs shadow-sm leading-relaxed bg-default-100 text-default border border-default rounded-tl-none markdown-content flex-1 min-w-[200px]">
+                    <div v-if="msg.isError" class="mt-2">
+                      <UAlert
+                        color="error"
+                        variant="subtle"
+                        title="Gagal Memuat Respons"
+                        icon="i-lucide-alert-triangle"
+                        :description="msg.content"
+                      >
+                        <template #actions>
+                          <UButton
+                            size="xs"
+                            color="error"
+                            variant="solid"
+                            label="Coba Lagi"
+                            @click="retryLastMessage"
+                          />
+                        </template>
+                      </UAlert>
+                    </div>
+
+                    <div
+                      v-else-if="getDisplayParts(msg).content"
+                      v-html="renderMarkdown(getDisplayParts(msg).content)"
+                      :class="{ 'streaming-active': isLoading && streamStarted && index === messages.length - 1 }"
+                    />
+
+                    <div v-if="isLoading && !streamStarted && index === messages.length - 1 && !getDisplayParts(msg).reasoning" class="space-y-2 py-2">
+                      <USkeleton class="h-3 w-[85%]" />
+                      <USkeleton class="h-3 w-[95%]" />
+                      <USkeleton class="h-3 w-[60%]" />
                     </div>
                   </div>
                 </div>
@@ -246,7 +404,7 @@ const renderMarkdown = (text: string) => {
           </div>
 
           <div class="p-4 border-t border-default bg-default/80">
-            <form @submit.prevent="sendMessage(inputMessage)" class="flex gap-2">
+            <form class="flex gap-2" @submit.prevent="sendMessage(inputMessage)">
               <UInput
                 v-model="inputMessage"
                 placeholder="Tanyakan sesuatu..."
@@ -301,5 +459,15 @@ const renderMarkdown = (text: string) => {
 .markdown-content :deep(a:hover) {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+.streaming-active :deep(p:last-child)::after {
+  content: '▋';
+  display: inline-block;
+  margin-left: 3px;
+  color: var(--ui-primary, #3b82f6);
+  animation: blink 0.8s step-start infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
 }
 </style>
