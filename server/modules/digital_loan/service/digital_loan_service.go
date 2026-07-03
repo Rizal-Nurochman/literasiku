@@ -50,12 +50,10 @@ func (s *digitalLoanService) Borrow(ctx context.Context, userID uint, req dto.Cr
 		return nil, fmt.Errorf("book is not available in digital format")
 	}
 
-	// check PDF exists (either file_url on book or files table)
-	if book.FileURL == "" {
-		files, err := s.fileRepo.FindByBookID(req.BookID)
-		if err != nil || len(files) == 0 {
-			return nil, fmt.Errorf("no PDF file found for this book")
-		}
+	// check PDF exists
+	files, err := s.fileRepo.FindByBookID(req.BookID)
+	if err != nil || len(files) == 0 {
+		return nil, fmt.Errorf("no PDF file found for this book")
 	}
 
 	// check already has active loan for this book
