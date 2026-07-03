@@ -10,9 +10,11 @@ const router = useRouter()
 const bookId = computed(() => Number(route.params.book_id))
 
 const { useDigitalAccess } = useLoans()
+const { useBookDetail } = useBooks()
 const { useBookFiles } = useFiles()
 
 const { data: accessData, isLoading: isAccessLoading } = useDigitalAccess(bookId)
+const { data: bookData, isLoading: isBookLoading } = useBookDetail(bookId)
 const { data: filesData, isLoading: isFilesLoading } = useBookFiles(bookId)
 
 const preferredMotion = usePreferredReducedMotion()
@@ -33,10 +35,7 @@ watchEffect(() => {
 })
 
 const pdfUrl = computed(() => {
-  if (filesData.value && filesData.value.length > 0) {
-    return filesData.value[0]?.file_path
-  }
-  return null
+  return bookData.value?.file_url ?? filesData.value?.[0]?.file_path ?? null
 })
 
 const goToHistory = () => {
@@ -66,7 +65,7 @@ const goToHistory = () => {
     </div>
 
     <div class="flex-1 flex flex-col relative bg-neutral-900/5">
-      <div v-if="isAccessLoading || isFilesLoading" class="absolute inset-0 flex items-center justify-center">
+      <div v-if="isAccessLoading || isBookLoading || isFilesLoading" class="absolute inset-0 flex items-center justify-center">
         <UIcon name="i-lucide-loader-2" class="w-10 h-10 animate-spin text-primary" />
       </div>
       
